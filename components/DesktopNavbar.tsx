@@ -4,7 +4,7 @@ import Link from "next/link";
 import { SignInButton, UserButton } from "@clerk/nextjs";
 import ThemeToggle from "./ThemeToggle";
 import { currentUser } from "@clerk/nextjs/server";
-import { getUserByClerkId, syncUser } from "@/app/actions/user.action";
+import { getUserByClerkId} from "@/app/actions/user.action";
 
 async function DesktopNavbar() {
     const autheUser = await currentUser();

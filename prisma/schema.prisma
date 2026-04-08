@@ -57,7 +57,7 @@ model Post {
 model Comment {
   id        String   @id @default(cuid())
   postId    String
-  content   String
+  content   String 
   authorId  String
   createdAt DateTime @default(now())
 
