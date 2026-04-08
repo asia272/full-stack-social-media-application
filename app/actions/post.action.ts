@@ -180,8 +180,8 @@ export async function createComment(postId: string, content: string) {
                 await tx.notification.create({
                     data: {
                         type: "COMMENT",
-                        userId: post.authorId,
-                        creatorId: dbUserId,
+                        userId: post.authorId,//reveiver,owner of post
+                        creatorId: dbUserId,//creator
                         postId,
                         commentId: newComment.id,
                     },
