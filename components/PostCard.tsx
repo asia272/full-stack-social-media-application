@@ -16,7 +16,7 @@ import { DeleteAlertDialog } from './DeleteAlertDialog';
 type Posts = Awaited<ReturnType<typeof getPosts>>
 type Post = Posts[0]
 
-function AllPosts({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
+function PostCard ({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
     const { user } = useUser()
 
     const [newComment, setNewComment] = useState("")
@@ -228,4 +228,4 @@ function AllPosts({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
     );
 }
 
-export default AllPosts
+export default PostCard 
