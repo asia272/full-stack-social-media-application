@@ -1,3 +1,5 @@
+"use client"
+
 import { getProfileByUsername, getUserAllPosts, updateProfile } from '@/app/actions/profile.action'
 import { toggleFollow } from '@/app/actions/user.action';
 import { SignInButton, useUser } from '@clerk/nextjs';
