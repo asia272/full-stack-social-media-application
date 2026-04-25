@@ -11,17 +11,26 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth, SignInButton, SignOutButton } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import NotificationBadge from "./NotificationBadge";
+import { usePathname } from "next/dist/client/components/navigation";
 
 
 function MobileNavbar({ user }: { user: any }) {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const { isSignedIn } = useAuth();
   const { theme, setTheme } = useTheme();
+
+
+
+const pathname = usePathname();
+
+useEffect(() => {
+  setShowMobileMenu(false);
+}, [pathname]);
 
   return (
     <div className="flex md:hidden items-center space-x-2">
