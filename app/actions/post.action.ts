@@ -134,6 +134,7 @@ export async function deletePost(postId: string) {
   try {
     const dbUserId = await getDbUserId();
     if (!dbUserId) return;
+
     const post = await prisma.post.findUnique({
       where: {
         id: postId,
@@ -141,6 +142,10 @@ export async function deletePost(postId: string) {
       select: { authorId: true },
     });
     if (!post) throw new Error("Post not found");
+
+    if (post.authorId !== dbUserId) {
+      throw new Error("Unauthorized");
+    }
     await prisma.post.delete({
       where: {
         id: postId,
