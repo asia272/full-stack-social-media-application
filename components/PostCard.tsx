@@ -173,7 +173,7 @@ useEffect(() => {
                 {post.content && post.content.length > 120 && (
                   <button
                     onClick={() => setExpanded((prev) => !prev)}
-                    className="text-sm text-muted-foreground hover:text-primary mt-1"
+                    className="text-sm cursor-pointer text-muted-foreground hover:text-primary mt-1"
                   >
                     {expanded ? "Show less" : "...see more"}
                   </button>
