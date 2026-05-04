@@ -4,6 +4,7 @@ import WhoToFollow from "@/components/WhoToFollow";
 import { currentUser } from "@clerk/nextjs/server";
 import { getPosts } from "./actions/post.action";
 import { getDbUserId } from "./actions/user.action";
+import PostsFeed from "@/components/PostFeed";
 
 export default async function Home() {
   const user = await currentUser();
@@ -28,8 +29,9 @@ export default async function Home() {
         {user?.id && <CreatePost />}
 
         <div className="space-y-6">
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} dbUserId={dbUserId} />
+          {posts.map((posts) => (
+            // <PostsFeed key={posts.id} posts={posts} dbUserId={dbUserId} />
+            <PostCard key={posts.id} post={ posts} dbUserId={dbUserId} />
           ))}
         </div>
       </div>
