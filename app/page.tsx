@@ -4,7 +4,7 @@ import WhoToFollow from "@/components/WhoToFollow";
 import { currentUser } from "@clerk/nextjs/server";
 import { getPosts } from "./actions/post.action";
 import { getDbUserId } from "./actions/user.action";
-import PostsFeed from "@/components/PostFeed";
+// import PostsFeed from "@/components/PostFeed";
 
 export default async function Home() {
   const user = await currentUser();
