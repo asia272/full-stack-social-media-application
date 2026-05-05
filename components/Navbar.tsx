@@ -4,7 +4,7 @@ import DesktopNavbar from './DesktopNavbar'
 import MobileNavbar from './MobileNavbar'
 import { currentUser } from '@clerk/nextjs/server';
 import { getUserByClerkId, syncUser } from '@/app/actions/user.action';
-
+import CreateDropdown from './CreateDropdown';
 
 
 const Navbar = async () => {
@@ -35,6 +35,7 @@ const Navbar = async () => {
             </Link>
           </div>
           <DesktopNavbar />
+          {clerkUser && <CreateDropdown />}
           <MobileNavbar user={user} />
         </div>
       </div>

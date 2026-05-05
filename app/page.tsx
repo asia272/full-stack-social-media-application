@@ -25,9 +25,6 @@ export default async function Home() {
     <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
       {/* MAIN FEED */}
       <div className="lg:col-span-6">
-        {/* ONLY SHOW CREATE POST IF LOGGED IN */}
-        {user?.id && <CreatePost />}
-
         <div className="space-y-6">
           {posts.map((posts) => (
             // <PostsFeed key={posts.id} posts={posts} dbUserId={dbUserId} />

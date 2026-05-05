@@ -10,58 +10,65 @@ import { Avatar, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Textarea } from "./ui/textarea";
+import { Input } from "./ui/input";
 
+type PostType = "POST" | "PROJECT";
 
-
-const CreatePost = () => {
+const CreatePost = ({ initialType }: { initialType?: PostType }) => {
   const { user, isLoaded } = useUser(); //get user
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-   const [githubUrl, setGithubUrl] = useState("");
-   const [liveUrl, setLiveUrl] = useState("");
+  const [githubUrl, setGithubUrl] = useState("");
+  const [liveUrl, setLiveUrl] = useState("");
   const [image, setImage] = useState("");
+  const [showImageUpload, setShowImageUpload] = useState(false);
 
   const [isPosting, setIsPosting] = useState(false);
-  const [showImageUpload, setShowImageUpload] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [postType, setPostType] = useState<"POST" | "PROJECT">(
-    "POST",
-  );
-    const [autoDetected, setAutoDetected] = useState(true);
+  const [autoDetected, setAutoDetected] = useState(true);
+
   if (!isLoaded) return null;
   if (!user) return null;
 
+  const [mode, setMode] = useState<PostType>(initialType || "POST");
+  const [postType, setPostType] = useState<PostType>(initialType || "POST");
 
-const detectPostType = () => {
-  const text = (title + " " + content).toLowerCase().trim();
+  useEffect(() => {
+    if (initialType) {
+      setMode(initialType);
+      setPostType(initialType);
+      setAutoDetected(false);
+    }
+  }, [initialType]);
 
-  const hasLinks = githubUrl || liveUrl;
+  const detectPostType = () => {
+    const text = (title + " " + content).toLowerCase().trim();
 
-  const projectKeywords = [
-    "project",
-    "built",
-    "created",
-    "made",
-    "developed",
-    "app",
-  ];
+    const hasLinks = githubUrl || liveUrl;
 
-  const isProjectIntent = projectKeywords.some((word) => text.includes(word));
+    const projectKeywords = [
+      "project",
+      "built",
+      "created",
+      "made",
+      "developed",
+      "app",
+    ];
 
-  if (hasLinks && isProjectIntent) return "PROJECT";
+    const isProjectIntent = projectKeywords.some((word) => text.includes(word));
 
-  if (hasLinks) return "PROJECT"; // fallback
+    if (hasLinks && isProjectIntent) return "PROJECT";
 
-  return "POST";
-};
+    if (hasLinks) return "PROJECT"; // fallback
 
+    return "POST";
+  };
   // Auto detect (only if user hasn't manually changed)
   useEffect(() => {
     if (!autoDetected) return;
     setPostType(detectPostType());
   }, [title, content, githubUrl, liveUrl]);
-
 
   //server action
   const handleSubmit = async () => {
@@ -70,26 +77,26 @@ const detectPostType = () => {
 
     setIsPosting(true);
     try {
-       const result = await createPost({
-         title: title || (postType === "PROJECT" ? "Untitled Project" : ""),
-         description: content,
-         githubUrl: githubUrl || undefined,
-         liveUrl: liveUrl || undefined,
-         image: image || undefined,
-         type: postType,
-       });
-
+      const result = await createPost({
+        title: title || (postType === "PROJECT" ? "Untitled Project" : ""),
+        description: content,
+        githubUrl: githubUrl || undefined,
+        liveUrl: liveUrl || undefined,
+        image: image || undefined,
+        type: postType,
+      });
 
       if (result.success) {
-    setTitle("");
-    setContent("");
-    setGithubUrl("");
-    setLiveUrl("");
-    setImage("");
-    setPostType("POST");
-    setAutoDetected(true);
-    setShowImageUpload(false);
+        setTitle("");
+        setContent("");
+        setGithubUrl("");
+        setLiveUrl("");
+        setImage("");
+        setAutoDetected(true);
+        setShowImageUpload(false);
 
+        setPostType(initialType || "POST");
+        setMode(initialType || "POST");
         toast.success("Post created successfully");
       }
     } catch (error) {
@@ -99,109 +106,121 @@ const detectPostType = () => {
     }
   };
   return (
-    <Card className="mb-6">
-      <CardContent className="pt-6">
-        <div className="flex items-center gap-3">
-          <Avatar className="w-10 h-10">
-            <AvatarImage src={user.imageUrl || "/avatar.png"} />
-          </Avatar>
+    <div>
+      <Card className="mb-6">
+        <CardContent className="pt-6 ">
+          <div className="flex items-center gap-3">
+            <Avatar className="w-10 h-10">
+              <AvatarImage src={user.imageUrl || "/avatar.png"} />
+            </Avatar>
 
-          <div className="text-sm font-medium">@{user?.fullName|| "user"}</div>
-        </div>
-
-        {/* TITLE */}
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Project title (e.g. Social Media App)"
-          className="w-full border rounded-md px-3 py-2 text-sm"
-          disabled={isPosting}
-        />
-
-        {/* DESCRIPTION */}
-        <Textarea
-          placeholder="Describe your project..."
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          disabled={isPosting}
-        />
-
-        {/* GITHUB + LIVE DEMO */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <input
-            value={githubUrl}
-            onChange={(e) => setGithubUrl(e.target.value)}
-            placeholder="GitHub Repo URL"
-            className="w-full border rounded-md px-3 py-2 text-sm"
-            disabled={isPosting}
-          />
-
-          <input
-            value={liveUrl}
-            onChange={(e) => setLiveUrl(e.target.value)}
-            placeholder="Live Demo URL"
-            className="w-full border rounded-md px-3 py-2 text-sm"
-            disabled={isPosting}
-          />
-          
-        </div>
-
-        {/* image upload */}
-        {showImageUpload && (
-          <div className="border rounded-lg p-4 mt-4">
-            <ImageUpload
-              key={image || "empty"}
-              endpoint="postImage"
-              value={image}
-              onChange={(url) => {
-                setImage(url);
-                if (!url) setShowImageUpload(false);
-              }}
-              setIsUploading={setIsUploading}
-            />
+            <div className="text-sm font-medium">
+              @{user?.fullName || "user"}
+            </div>
           </div>
-        )}
-        <div className="flex items-center justify-between border-t pt-4">
-          <div className="flex space-x-2">
+
+          {/* TITLE */}
+          <Input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder={
+              mode === "PROJECT"
+                ? "Project title (e.g. Social Media App)"
+                : "What's on your mind?"
+            }
+            className="w-full border rounded-md px-3 py-2 text-sm"
+            disabled={isPosting}
+          />
+          {/* DESCRIPTION */}
+          <Textarea
+            placeholder={
+              mode === "PROJECT"
+                ? "Describe your project..."
+                : "Share your thoughts..."
+            }
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            disabled={isPosting}
+          />
+
+          {/* GITHUB + LIVE DEMO */}
+          {mode === "PROJECT" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <Input
+                value={githubUrl}
+                onChange={(e) => setGithubUrl(e.target.value)}
+                placeholder="GitHub Repo URL"
+                className="w-full border rounded-md px-3 py-2 text-sm"
+                disabled={isPosting}
+              />
+
+              <Input
+                value={liveUrl}
+                onChange={(e) => setLiveUrl(e.target.value)}
+                placeholder="Live Demo URL"
+                className="w-full border rounded-md px-3 py-2 text-sm"
+                disabled={isPosting}
+              />
+            </div>
+          )}
+
+          {/* image upload */}
+          {showImageUpload && (
+            <div className="border rounded-lg p-4 mt-4">
+              <ImageUpload
+                key={image || "empty"}
+                endpoint="postImage"
+                value={image}
+                onChange={(url) => {
+                  setImage(url);
+                  if (!url) setShowImageUpload(false);
+                }}
+                setIsUploading={setIsUploading}
+              />
+            </div>
+          )}
+          <div className="flex items-center justify-between border-t pt-4">
+            <div className="flex space-x-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-primary"
+                onClick={() => setShowImageUpload(!showImageUpload)}
+                disabled={isPosting}
+              >
+                <ImageIcon className="size-4 mr-2" />
+                Photo
+              </Button>
+            </div>
             <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-primary"
-              onClick={() => setShowImageUpload(!showImageUpload)}
-              disabled={isPosting}
+              className="flex items-center"
+              onClick={handleSubmit}
+              disabled={
+                (!content && !image && !title) || isPosting || isUploading
+              }
             >
-              <ImageIcon className="size-4 mr-2" />
-              Photo
+              {isPosting ? (
+                <>
+                  <Loader2Icon className="size-4 mr-2 animate-spin" />
+                  Posting...
+                </>
+              ) : isUploading ? (
+                <>
+                  <Loader2Icon className="size-4 mr-2 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <SendIcon className="size-4 mr-2" />
+                  Post
+                </>
+              )}
             </Button>
           </div>
-          <Button
-            className="flex items-center"
-            onClick={handleSubmit}
-            disabled={
-              (!content && !image && !title) || isPosting || isUploading
-            }
-          >
-            {isPosting ? (
-              <>
-                <Loader2Icon className="size-4 mr-2 animate-spin" />
-                Posting...
-              </>
-            ) : isUploading ? (
-              <>
-                <Loader2Icon className="size-4 mr-2 animate-spin" />
-                Uploading...
-              </>
-            ) : (
-              <>
-                <SendIcon className="size-4 mr-2" />
-                Post
-              </>
-            )}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
