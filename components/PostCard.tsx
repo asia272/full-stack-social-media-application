@@ -10,7 +10,6 @@ import {
 import { SignInButton, useUser } from "@clerk/nextjs";
 import { formatDistanceToNow } from "date-fns";
 import {
-  Check,
   HeartIcon,
   Loader2,
   LogInIcon,
@@ -18,11 +17,10 @@ import {
   MoreVertical,
   Pencil,
   SendIcon,
-  Trash2,
-  X,
+  Trash2
 } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { DeleteAlertDialog } from "./DeleteAlertDialog";
 import { Avatar, AvatarImage } from "./ui/avatar";
