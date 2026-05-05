@@ -1,16 +1,17 @@
 "use client";
 
 import { createPost } from "@/app/actions/post.action";
+import { TECH_SUGGESTIONS } from "@/data/TechSuggestions";
 import { useUser } from "@clerk/nextjs";
 import { ImageIcon, Loader2Icon, SendIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import ImageUpload from "./ImageUpload";
 import { Avatar, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
-import { Textarea } from "./ui/textarea";
 import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 
 type PostType = "POST" | "PROJECT";
 
@@ -22,24 +23,99 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
   const [githubUrl, setGithubUrl] = useState("");
   const [liveUrl, setLiveUrl] = useState("");
   const [image, setImage] = useState("");
+  const [techStack, setTechStack] = useState<string[]>([]);
+  const [techInput, setTechInput] = useState("");
   const [showImageUpload, setShowImageUpload] = useState(false);
 
   const [isPosting, setIsPosting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  if (!isLoaded) return null;
-  if (!user) return null;
-
   const [mode, setMode] = useState<PostType>(initialType || "POST");
   const [postType, setPostType] = useState<PostType>(initialType || "POST");
 
+  const techBoxRef = useRef<HTMLDivElement | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [highlightIndex, setHighlightIndex] = useState(-1);
+  const [filteredTechs, setFilteredTechs] = useState<string[]>([]);
+  const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  if (!isLoaded) return null;
+  if (!user) return null;
+  // Set post type
   useEffect(() => {
     if (initialType) {
       setMode(initialType);
       setPostType(initialType);
     }
   }, [initialType]);
+  // handle outside click on suggestion
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        techBoxRef.current &&
+        !techBoxRef.current.contains(event.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    }
 
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const filtered = TECH_SUGGESTIONS.filter(
+      (t) =>
+        t.toLowerCase().includes(techInput.toLowerCase()) &&
+        !techStack.includes(t),
+    );
+
+    setFilteredTechs(filtered);
+    setHighlightIndex(-1);
+  }, [techInput, techStack]);
+  useEffect(() => {
+    setHighlightIndex(-1);
+  }, [techInput]);
+
+  useEffect(() => {
+    itemRefs.current = [];
+  }, [filteredTechs]);
+  useEffect(() => {
+    if (highlightIndex < 0) return;
+
+    const el = itemRefs.current[highlightIndex];
+
+    if (el) {
+      el.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [highlightIndex]);
+  const addTech = (tech: string) => {
+    const value = tech.trim();
+
+    if (!value) return;
+
+    // max limit
+    if (techStack.length >= 10) {
+      toast.error("Max 10 technologies allowed");
+      return;
+    }
+
+    // prevent duplicates
+    if (techStack.includes(value)) {
+      toast.error("Already added");
+      return;
+    }
+
+    setTechStack((prev) => [...prev, value]);
+  };
+  const removeTech = (tech: string) => {
+    setTechStack((prev) => prev.filter((t) => t !== tech));
+  };
 
   //server action
   const handleSubmit = async () => {
@@ -55,6 +131,7 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
         liveUrl: liveUrl || undefined,
         image: image || undefined,
         type: postType,
+        techStack: postType === "PROJECT" ? techStack : [],
       });
 
       if (result.success) {
@@ -64,6 +141,8 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
         setLiveUrl("");
         setImage("");
         setShowImageUpload(false);
+        setTechStack([]);
+        setTechInput("");
 
         setPostType(initialType || "POST");
         setMode(initialType || "POST");
@@ -116,21 +195,146 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
           {/* GITHUB + LIVE DEMO */}
           {mode === "PROJECT" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <Input
-                value={githubUrl}
-                onChange={(e) => setGithubUrl(e.target.value)}
-                placeholder="GitHub Repo URL"
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                disabled={isPosting}
-              />
+              <div className="mt-3 space-y-2 p-3 rounded-lg border bg-muted/30">
+                {/* Input */}
+                <div className="relative">
+                  <Input
+                    value={techInput}
+                    onChange={(e) => {
+                      setTechInput(e.target.value);
+                      setShowDropdown(true);
+                    }}
+                    onFocus={() => setShowDropdown(true)}
+                    placeholder="Add tech (React, Next.js...)"
+                    className="
+    w-full
+    rounded-lg
+    border
+    bg-background
+    px-3 py-2
+    text-sm
+    outline-none
+    transition
+    focus:ring-2
+    focus:ring-primary/30
+    focus:border-primary
+  "
+                    onKeyDown={(e) => {
+                      if (!showDropdown) return;
 
-              <Input
-                value={liveUrl}
-                onChange={(e) => setLiveUrl(e.target.value)}
-                placeholder="Live Demo URL"
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                disabled={isPosting}
-              />
+                      // DOWN
+                      if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        setHighlightIndex((prev) =>
+                          prev < filteredTechs.length - 1 ? prev + 1 : 0,
+                        );
+                      }
+
+                      // UP
+                      if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        setHighlightIndex((prev) =>
+                          prev > 0 ? prev - 1 : filteredTechs.length - 1,
+                        );
+                      }
+
+                      // ENTER
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+
+                        if (highlightIndex >= 0) {
+                          addTech(filteredTechs[highlightIndex]);
+                        } else if (filteredTechs.length > 0) {
+                          addTech(filteredTechs[0]);
+                        }
+
+                        setShowDropdown(false);
+                      }
+
+                      // ESC
+                      if (e.key === "Escape") {
+                        setShowDropdown(false);
+                      }
+                    }}
+                  />
+
+                  {/* AUTOCOMPLETE DROPDOWN */}
+                  {showDropdown && techInput.trim() && (
+                    <div ref={techBoxRef} className="relative">
+                      <div
+                        className="
+      absolute z-10 mt-2 w-full
+      rounded-xl border
+      bg-background/95 backdrop-blur-md
+      shadow-xl
+      max-h-48 overflow-auto
+      animate-in fade-in-0 zoom-in-95
+    "
+                      >
+                        {filteredTechs.map((tech, index) => (
+                          <button
+                            key={tech}
+                            ref={(el) => (itemRefs.current[index] = el)}
+                            type="button"
+                            onClick={() => addTech(tech)}
+                            className={`w-full text-left px-3 py-2 text-sm transition ${
+                              index === highlightIndex
+                                ? "bg-muted"
+                                : "hover:bg-muted"
+                            }`}
+                          >
+                            {tech}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* SELECTED TAGS */}
+                <div className="flex flex-wrap gap-2">
+                  {techStack.map((tech) => (
+                    <span
+                      key={tech}
+                      className="flex items-center gap-2 px-3 py-1 text-xs rounded-full bg-muted/60 border hover:bg-muted transition"
+                    >
+                      {tech}
+                      <button
+                        onClick={() =>
+                          setTechStack((prev) => prev.filter((t) => t !== tech))
+                        }
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+
+                {/* COUNTER */}
+                {techStack.length === 10 && (
+                  <p className="text-xs text-red-400">
+                    {techStack.length}/10 technologies selected
+                  </p>
+                )}
+              </div>
+              <div className="mt-3 space-y-3">
+                <Input
+                  value={githubUrl}
+                  onChange={(e) => setGithubUrl(e.target.value)}
+                  placeholder="GitHub Repo URL"
+                  className="w-full border rounded-md px-3 py-2 text-sm"
+                  disabled={isPosting}
+                />
+
+                <Input
+                  value={liveUrl}
+                  onChange={(e) => setLiveUrl(e.target.value)}
+                  placeholder="Live Demo URL"
+                  className="w-full border rounded-md px-3 py-2 text-sm"
+                  disabled={isPosting}
+                />
+              </div>
             </div>
           )}
 

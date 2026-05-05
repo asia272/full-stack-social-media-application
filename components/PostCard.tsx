@@ -17,7 +17,10 @@ import {
   MoreVertical,
   Pencil,
   SendIcon,
-  Trash2
+  Trash2,
+  Code2,
+  FileText,
+  ExternalLink
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -34,9 +37,9 @@ type Post = Awaited<ReturnType<typeof getPosts>>[number];
 const getTypeIcon = (type?: string) => {
   switch (type) {
     case "PROJECT":
-      return "🚀";
+      return <Code2 className="size-4" />;
     default:
-      return "📝";
+      return <FileText className="size-4" />;
   }
 };
 
@@ -174,40 +177,41 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
                     href={`/profile/${post.author.username}`}
                     className="font-semibold truncate"
                   >
-                    {post.author.name}
+                    {post.author.name || post.author.username}
                   </Link>
                   <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                    <Link href={`/profile/${post.author.username}`}>
-                      @{post.author.username}
-                    </Link>
                     <span>•</span>
                     <span>
                       {formatDistanceToNow(new Date(post.createdAt))} ago
                     </span>
+                    <div className="flex items-center gap-2 ml-2">
+                      {post.type && (
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full ${getTypeStyles(post.type)}`}
+                        >
+                          {post.type}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 {/* Check if current user is the post author */}
                 {dbUserId === post.author.id && (
-                  <DeleteAlertDialog
-                    isDeleting={isDeleting}
-                    onDelete={() => handleDeletePost(post.id)}
-                  />
+                  <div className="flex items-center gap-2">
+                    <DeleteAlertDialog
+                      isDeleting={isDeleting}
+                      onDelete={() => handleDeletePost(post.id)}
+                    />
+                  </div>
                 )}
               </div>
-              <div className="flex items-center gap-2">
-                {post.type && (
-                  <span
-                    className={`text-xs px-2 py-1 rounded-full ${getTypeStyles(post.type)}`}
-                  >
-                    {post.type}
-                  </span>
-                )}
-              </div>
-              <div className="space-y-3 mt-2">
+
+              <div className="space-y-3">
                 {/* TITLE */}
                 {post.title && (
-                  <h2 className="text-lg font-semibold">
-                    {getTypeIcon(post.type)} {post.title}
+                  <h2 className="text-sm font-semibold flex items-center gap-2">
+                    {getTypeIcon(post.type)}
+                    <span>{post.title}</span>
                   </h2>
                 )}
 
@@ -248,41 +252,7 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
                         ))}
                       </div>
                     )}
-
-                    {/* LINKS */}
-                    {(post.githubUrl || post.liveUrl) && (
-                      <div className="flex flex-wrap gap-3 mt-2">
-                        {post.githubUrl && (
-                          <a
-                            href={post.githubUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs sm:text-sm px-3 py-1 rounded-full bg-muted hover:bg-muted/80"
-                          >
-                            💻 GitHub
-                          </a>
-                        )}
-
-                        {post.liveUrl && (
-                          <a
-                            href={post.liveUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs sm:text-sm px-3 py-1 rounded-full bg-muted hover:bg-muted/80"
-                          >
-                            🔗 Live Demo
-                          </a>
-                        )}
-                      </div>
-                    )}
                   </>
-                )}
-
-                {/* QUESTION CTA */}
-                {post.type === "QUESTION" && (
-                  <p className="text-xs text-muted-foreground italic">
-                    💬 People can answer this in comments
-                  </p>
                 )}
               </div>
             </div>
@@ -290,17 +260,50 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
 
           {/* POST IMAGE */}
           {post.image && (
-            <div className="rounded-xl overflow-hidden border">
+            <div className="relative group rounded-xl overflow-hidden border">
+              {/* IMAGE */}
               <img
                 src={post.image}
                 alt="Post content"
-                className="w-full max-h-[500px] object-cover cursor-pointer hover:scale-[1.01] transition-transform"
+                className="w-full max-h-[500px] object-cover transition-transform duration-300 group-hover:scale-105"
               />
+
+              {/* DARK OVERLAY */}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300" />
+
+              {/* ACTION BUTTONS OVER IMAGE */}
+              {(post.githubUrl || post.liveUrl) && (
+                <div className="absolute top-3 right-3 flex gap-2  transition">
+                  {post.githubUrl && (
+                    <a
+                      href={post.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 px-3 py-1 text-xs rounded-full bg-white/90 text-black hover:bg-white"
+                    >
+                      <Code2 className="size-4" />
+                      GitHub
+                    </a>
+                  )}
+
+                  {post.liveUrl && (
+                    <a
+                      href={post.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 px-3 py-1 text-xs rounded-full bg-white/90 text-black hover:bg-white"
+                    >
+                      <ExternalLink className="size-4" />
+                      Live
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
           {/* LIKE & COMMENT BUTTONS */}
-          <div className="flex items-center pt-2 space-x-4">
+          <div className="flex items-center pt-3 gap-2">
             {user ? (
               <Button
                 variant="ghost"
@@ -335,7 +338,7 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
             <Button
               variant="ghost"
               size="sm"
-              className="text-muted-foreground gap-2 hover:text-blue-500"
+              className="rounded-full px-3 gap-2 text-muted-foreground hover:text-blue-500"
               onClick={() => setShowComments((prev) => !prev)}
             >
               <MessageCircleIcon
