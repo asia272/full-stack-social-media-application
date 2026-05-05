@@ -4,24 +4,6 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getDbUserId } from "./user.action";
 
-// export async function createPost(content: string, image: string) {
-//   try {
-//     const userId = await getDbUserId();
-//     if (!userId) return { success: false, error: "User not found" };
-//     const post = await prisma.post.create({
-//       data: {
-//         content,
-//         image,
-//         authorId: userId,
-//       },
-//     });
-//     revalidatePath("/");
-//     return { success: true, post };
-//   } catch (error) {
-//     console.log("Faild to create post:", error);
-//     return { success: false, error: "Failed to create post" };
-//   }
-// }
 
 
 export async function createPost(data: {

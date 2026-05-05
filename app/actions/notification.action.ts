@@ -11,37 +11,38 @@ export async function getUserNotifications() {
         if (!dbUserId) return null
 
         const notifications = await prisma.notification.findMany({
-            where: {
-                userId: dbUserId
+          where: {
+            userId: dbUserId,
+          },
+          include: {
+            creator: {
+              select: {
+                id: true,
+                name: true,
+                username: true,
+                image: true,
+              },
             },
-            include: {
-                creator: {
-                    select: {
-                        id: true,
-                        name: true,
-                        username: true,
-                        image: true
-                    }
-                },
-                post: {
-                    select: {
-                        id: true,
-                        content: true,
-                        image: true
-                    }
-                },
-                comment: {
-                    select: {
-                        id: true,
-                        content: true,
-                        createdAt: true,
-                    }
-                }
+            post: {
+              select: {
+                id: true,
+                description: true,
+                image: true,
+                title: true,
+              },
             },
-            orderBy: {
-                createdAt: "desc"
-            }
-        })
+            comment: {
+              select: {
+                id: true,
+                content: true,
+                createdAt: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        });
         return notifications;
     } catch (error) {
         console.error("Error fetching notifications:", error);
