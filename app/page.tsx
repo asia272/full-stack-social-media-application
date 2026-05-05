@@ -26,9 +26,8 @@ export default async function Home() {
       {/* MAIN FEED */}
       <div className="lg:col-span-6">
         <div className="space-y-6">
-          {posts.map((posts) => (
-            // <PostsFeed key={posts.id} posts={posts} dbUserId={dbUserId} />
-            <PostCard key={posts.id} post={ posts} dbUserId={dbUserId} />
+          {posts.map((post) => (
+            <PostCard key={post.id} post={post} dbUserId={dbUserId} />
           ))}
         </div>
       </div>

@@ -1,110 +1,116 @@
-"use client"
-import { createComment, deleteComment, deletePost, getPosts, toggleLike, updateComment } from '@/app/actions/post.action';
+"use client";
+import {
+  createComment,
+  deleteComment,
+  deletePost,
+  getPosts,
+  toggleLike,
+  updateComment,
+} from "@/app/actions/post.action";
 import { SignInButton, useUser } from "@clerk/nextjs";
 import { formatDistanceToNow } from "date-fns";
-import { Check, HeartIcon, Loader2, LogInIcon, MessageCircleIcon, MoreVertical, Pencil, SendIcon, Trash2, X } from 'lucide-react';
-import Link from 'next/link';
-import { useState, useEffect,useRef } from 'react';
-import toast from 'react-hot-toast';
-import { DeleteAlertDialog } from './DeleteAlertDialog';
-import { Avatar, AvatarImage } from './ui/avatar';
-import { Button } from './ui/button';
-import { Card, CardContent } from './ui/card';
-import { Textarea } from './ui/textarea';
+import {
+  Check,
+  HeartIcon,
+  Loader2,
+  LogInIcon,
+  MessageCircleIcon,
+  MoreVertical,
+  Pencil,
+  SendIcon,
+  Trash2,
+  X,
+} from "lucide-react";
+import Link from "next/link";
+import { useState, useEffect, useRef } from "react";
+import toast from "react-hot-toast";
+import { DeleteAlertDialog } from "./DeleteAlertDialog";
+import { Avatar, AvatarImage } from "./ui/avatar";
+import { Button } from "./ui/button";
+import { Card, CardContent } from "./ui/card";
+import { Textarea } from "./ui/textarea";
 
 type Posts = Awaited<ReturnType<typeof getPosts>>;
-type Post = Posts[0] & {
-  techStack?: string[];
-  githubUrl?: string;
-  liveUrl?: string;
-  title?: string;
-  description?: string;
-  type?: "POST" | "PROJECT" | "QUESTION";
-};  
+type Post = Awaited<ReturnType<typeof getPosts>>[number];
 
 const getTypeIcon = (type?: string) => {
   switch (type) {
     case "PROJECT":
       return "🚀";
-    case "QUESTION":
-      return "❓";
     default:
       return "📝";
   }
 };
 
-
-
 const getTypeStyles = (type?: string) => {
   switch (type) {
     case "PROJECT":
       return "bg-green-100 text-green-600";
-    case "QUESTION":
-      return "bg-yellow-100 text-yellow-600";
     default:
       return "bg-blue-100 text-blue-600";
   }
 };
 function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
-    const { user } = useUser()
+  const { user } = useUser();
 
-    const [newComment, setNewComment] = useState("")
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [isCommenting, setIsCommenting] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isCommenting, setIsCommenting] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [hasLiked, setHasLiked] = useState(post.likes.some((like) => like.userId === dbUserId))
-    const [optimisticLikes, setOptimisticLikes] = useState(post._count.likes);
-    const [showComments, setShowComments] = useState(false);
-const [expanded, setExpanded] = useState(false);
+  const [hasLiked, setHasLiked] = useState(
+    post.likes.some((like) => like.userId === dbUserId),
+  );
+  const [optimisticLikes, setOptimisticLikes] = useState(post._count.likes);
+  const [showComments, setShowComments] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-const menuRef = useRef<HTMLDivElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
-    const handleLike = async (postId: string) => {
-        if (isLiking) return
-        try {
-            setIsLiking(true)
-            setHasLiked((prev) => !prev)
-            setOptimisticLikes((prev) => hasLiked ? prev - 1 : prev + 1)
-            await toggleLike(postId)
-
-        } catch (error) {
-            setOptimisticLikes(post._count.likes)
-            setHasLiked(post.likes.some((like) => like.userId === dbUserId))
-        } finally {
-            setIsLiking(false)
-        }
+  const handleLike = async (postId: string) => {
+    if (isLiking) return;
+    try {
+      setIsLiking(true);
+      setHasLiked((prev) => !prev);
+      setOptimisticLikes((prev) => (hasLiked ? prev - 1 : prev + 1));
+      await toggleLike(postId);
+    } catch (error) {
+      setOptimisticLikes(post._count.likes);
+      setHasLiked(post.likes.some((like) => like.userId === dbUserId));
+    } finally {
+      setIsLiking(false);
     }
-    const handleDeletePost = async (postId: string) => {
-        if (isDeleting) return;
-        try {
-            setIsDeleting(true);
-            const result = await deletePost(postId);
-            if (result?.success) toast.success("Post deleted successfully");
-            else throw new Error(result?.error);
-        } catch (error) {
-            toast.error("Failed to delete post");
-        } finally {
-            setIsDeleting(false);
-        }
+  };
+  const handleDeletePost = async (postId: string) => {
+    if (isDeleting) return;
+    try {
+      setIsDeleting(true);
+      const result = await deletePost(postId);
+      if (result?.success) toast.success("Post deleted successfully");
+      else throw new Error(result?.error);
+    } catch (error) {
+      toast.error("Failed to delete post");
+    } finally {
+      setIsDeleting(false);
     }
-    const handleAddComment = async (postId: string) => {
-        if (!newComment.trim() || isCommenting) return;
-        try {
-            setIsCommenting(true);
-            const result = await createComment(postId, newComment);
-            if (result?.success) {
-                toast.success("Comment posted successfully");
-                setNewComment("");
-            }
-        } catch (error) {
-            toast.error("Failed to add comment");
-        } finally {
-            setIsCommenting(false);
-        }
+  };
+  const handleAddComment = async (postId: string) => {
+    if (!newComment.trim() || isCommenting) return;
+    try {
+      setIsCommenting(true);
+      const result = await createComment(postId, newComment);
+      if (result?.success) {
+        toast.success("Comment posted successfully");
+        setNewComment("");
+      }
+    } catch (error) {
+      toast.error("Failed to add comment");
+    } finally {
+      setIsCommenting(false);
     }
+  };
   const handleDeleteComment = async (commentId: string) => {
     try {
       const result = await deleteComment(commentId);
@@ -118,40 +124,40 @@ const menuRef = useRef<HTMLDivElement | null>(null);
       toast.error("Something went wrong");
     }
   };
-const handleUpdateComment = async (commentId: string) => {
-  if (!editText.trim() || isUpdating) return;
+  const handleUpdateComment = async (commentId: string) => {
+    if (!editText.trim() || isUpdating) return;
 
-  try {
-    setIsUpdating(true);
+    try {
+      setIsUpdating(true);
 
-    const result = await updateComment(commentId, editText);
+      const result = await updateComment(commentId, editText);
 
-    if (result?.success) {
-      toast.success("Comment updated");
-      setEditingCommentId(null);
-      setEditText("");
-    } else {
-      toast.error(result?.error || "Failed to update");
+      if (result?.success) {
+        toast.success("Comment updated");
+        setEditingCommentId(null);
+        setEditText("");
+      } else {
+        toast.error(result?.error || "Failed to update");
+      }
+    } catch {
+      toast.error("Something went wrong");
+    } finally {
+      setIsUpdating(false);
     }
-  } catch {
-    toast.error("Something went wrong");
-  } finally {
-    setIsUpdating(false);
-  }
-};
+  };
 
   // For outside click of comment menu
-useEffect(() => {
-  function handleClickOutside(event: MouseEvent) {
-    if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-      setOpenMenuId(null);
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenuId(null);
+      }
     }
-  }
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, []);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-4 sm:p-6">
@@ -529,4 +535,4 @@ useEffect(() => {
   );
 }
 
-export default PostCard 
+export default PostCard;

@@ -26,7 +26,6 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
 
   const [isPosting, setIsPosting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [autoDetected, setAutoDetected] = useState(true);
 
   if (!isLoaded) return null;
   if (!user) return null;
@@ -38,37 +37,9 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
     if (initialType) {
       setMode(initialType);
       setPostType(initialType);
-      setAutoDetected(false);
     }
   }, [initialType]);
 
-  const detectPostType = () => {
-    const text = (title + " " + content).toLowerCase().trim();
-
-    const hasLinks = githubUrl || liveUrl;
-
-    const projectKeywords = [
-      "project",
-      "built",
-      "created",
-      "made",
-      "developed",
-      "app",
-    ];
-
-    const isProjectIntent = projectKeywords.some((word) => text.includes(word));
-
-    if (hasLinks && isProjectIntent) return "PROJECT";
-
-    if (hasLinks) return "PROJECT"; // fallback
-
-    return "POST";
-  };
-  // Auto detect (only if user hasn't manually changed)
-  useEffect(() => {
-    if (!autoDetected) return;
-    setPostType(detectPostType());
-  }, [title, content, githubUrl, liveUrl]);
 
   //server action
   const handleSubmit = async () => {
@@ -92,7 +63,6 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
         setGithubUrl("");
         setLiveUrl("");
         setImage("");
-        setAutoDetected(true);
         setShowImageUpload(false);
 
         setPostType(initialType || "POST");

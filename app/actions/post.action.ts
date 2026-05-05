@@ -42,9 +42,7 @@ export async function createPost(data: {
 export const getPosts = async () => {
   try {
     const posts = await prisma.post.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
       include: {
         author: {
           select: {
@@ -65,14 +63,10 @@ export const getPosts = async () => {
               },
             },
           },
-          orderBy: {
-            createdAt: "asc",
-          },
+          orderBy: { createdAt: "asc" },
         },
         likes: {
-          select: {
-            userId: true,
-          },
+          select: { userId: true },
         },
         _count: {
           select: {
@@ -82,11 +76,17 @@ export const getPosts = async () => {
         },
       },
     });
-
-    return posts; // MUST be raw array
+return posts.map((post) => ({
+  ...post,
+  githubUrl: post.githubUrl ?? undefined,
+  liveUrl: post.liveUrl ?? undefined,
+  description: post.description ?? undefined,
+  title: post.title ?? undefined,
+  techStack: post.techStack ?? [],
+}));
   } catch (error) {
     console.log("Error in get posts:", error);
-    return []; 
+    return [];
   }
 };
 
