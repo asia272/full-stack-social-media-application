@@ -274,7 +274,9 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
                         {filteredTechs.map((tech, index) => (
                           <button
                             key={tech}
-                            ref={(el) => (itemRefs.current[index] = el)}
+                            ref={(el) => {
+                              itemRefs.current[index] = el;
+                            }}
                             type="button"
                             onClick={() => addTech(tech)}
                             className={`w-full text-left px-3 py-2 text-sm transition ${
