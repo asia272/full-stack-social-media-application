@@ -22,7 +22,17 @@ import { Textarea } from './ui/textarea';
 
 
 type User = Awaited<ReturnType<typeof getProfileByUsername>>
+
 type Posts = Awaited<ReturnType<typeof getUserAllPosts>>;
+
+type Post = Posts[0] & {
+  githubUrl: string | null;
+  liveUrl: string | null;
+  description: string | null;
+  title: string | null;
+  techStack: string[];
+  type: "POST" | "PROJECT" | "QUESTION";
+};
 
 interface ProfilePageClientProps {
   user: NonNullable<User>;

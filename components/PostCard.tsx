@@ -28,7 +28,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Textarea } from "./ui/textarea";
 
-type Posts = Awaited<ReturnType<typeof getPosts>>;
+
 type Post = Awaited<ReturnType<typeof getPosts>>[number];
 
 const getTypeIcon = (type?: string) => {

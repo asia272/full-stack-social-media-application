@@ -89,7 +89,6 @@ return posts.map((post) => ({
     return [];
   }
 };
-
 export async function toggleLike(postId: string) {
   try {
     const dbUserId = await getDbUserId();

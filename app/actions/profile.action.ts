@@ -80,7 +80,14 @@ export async function getUserAllPosts(userId: string) {
             },
         })
 
-        return posts;
+    return posts.map((post) => ({
+      ...post,
+      githubUrl: post.githubUrl ?? undefined,
+      liveUrl: post.liveUrl ?? undefined,
+      description: post.description ?? undefined,
+      title: post.title ?? undefined,
+    }));
+        
     } catch (error) {
         console.error("Error fetching user posts:", error);
         throw new Error("Failed to fetch user posts");
@@ -139,7 +146,13 @@ export async function getUserLikedPosts(userId: string) {
             },
         });
 
-        return likedPosts;
+  return likedPosts.map((post) => ({
+    ...post,
+    githubUrl: post.githubUrl ?? undefined,
+    liveUrl: post.liveUrl ?? undefined,
+    description: post.description ?? undefined,
+    title: post.title ?? undefined,
+  }));
     } catch (error) {
         console.error("Error fetching liked posts:", error);
         throw new Error("Failed to fetch liked posts");
