@@ -3,7 +3,7 @@
 import { createPost } from "@/app/actions/post.action";
 import { TECH_SUGGESTIONS } from "@/data/TechSuggestions";
 import { useUser } from "@clerk/nextjs";
-import { ImageIcon, Loader2Icon, SendIcon } from "lucide-react";
+import { FileWarning, ImageIcon, Loader2Icon, SendIcon, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import ImageUpload from "./ImageUpload";
@@ -100,8 +100,7 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
     if (!value) return;
 
     // max limit
-    if (techStack.length >= 10) {
-      toast.error("Max 10 technologies allowed");
+    if (techStack.length >= 5) {
       return;
     }
 
@@ -157,10 +156,9 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
   return (
     <Card>
       <CardContent className="pt-6 space-y-5">
-
         {/* TITLE */}
         <div className="space-y-1">
-          <label className="text-sm font-medium text-muted-foreground">
+          <label className="text-sm font-medium ">
             {mode === "PROJECT" ? "Project Title" : "Post Title"}
           </label>
           <Input
@@ -178,9 +176,7 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
 
         {/* DESCRIPTION */}
         <div className="space-y-1">
-          <label className="text-sm font-medium text-muted-foreground">
-            Description
-          </label>
+          <label className="text-sm font-medium">Description</label>
           <Textarea
             placeholder={
               mode === "PROJECT"
@@ -196,119 +192,11 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
 
         {/* PROJECT FIELDS */}
         {mode === "PROJECT" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* LEFT SIDE */}
-            <div className="space-y-4 p-4 border rounded-xl bg-muted/30">
-              {/* TECH STACK */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">
-                  Tech Stack
-                </label>
-
-                <div className="relative">
-                  <Input
-                    value={techInput}
-                    onChange={(e) => {
-                      setTechInput(e.target.value);
-                      setShowDropdown(true);
-                    }}
-                    onFocus={() => setShowDropdown(true)}
-                    placeholder="React, Next.js..."
-                    onKeyDown={(e) => {
-                      if (!showDropdown) return;
-
-                      if (e.key === "ArrowDown") {
-                        e.preventDefault();
-                        setHighlightIndex((prev) =>
-                          prev < filteredTechs.length - 1 ? prev + 1 : 0,
-                        );
-                      }
-
-                      if (e.key === "ArrowUp") {
-                        e.preventDefault();
-                        setHighlightIndex((prev) =>
-                          prev > 0 ? prev - 1 : filteredTechs.length - 1,
-                        );
-                      }
-
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-
-                        if (highlightIndex >= 0) {
-                          addTech(filteredTechs[highlightIndex]);
-                        } else if (filteredTechs.length > 0) {
-                          addTech(filteredTechs[0]);
-                        }
-
-                        setShowDropdown(false);
-                      }
-
-                      if (e.key === "Escape") {
-                        setShowDropdown(false);
-                      }
-                    }}
-                  />
-
-                  {/* DROPDOWN */}
-                  {showDropdown && techInput.trim() && (
-                    <div ref={techBoxRef} className="absolute z-10 mt-2 w-full">
-                      <div className="rounded-xl border bg-background shadow-lg max-h-48 overflow-auto">
-                        {filteredTechs.map((tech, index) => (
-                          <button
-                            key={tech}
-                            ref={(el) => {
-                              itemRefs.current[index] = el;
-                            }}
-                            type="button"
-                            onClick={() => addTech(tech)}
-                            className={`w-full text-left px-3 py-2 text-sm ${
-                              index === highlightIndex
-                                ? "bg-muted"
-                                : "hover:bg-muted"
-                            }`}
-                          >
-                            {tech}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* TAGS */}
-                <div className="flex flex-wrap gap-2">
-                  {techStack.map((tech) => (
-                    <span
-                      key={tech}
-                      className="flex items-center gap-2 px-3 py-1 text-xs rounded-full bg-muted border"
-                    >
-                      {tech}
-                      <button
-                        onClick={() =>
-                          setTechStack((prev) => prev.filter((t) => t !== tech))
-                        }
-                        className="text-red-500"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                </div>
-
-                {techStack.length === 10 && (
-                  <p className="text-xs text-red-400">
-                    {techStack.length}/10 technologies selected
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* RIGHT SIDE */}
-            <div className="space-y-4">
+          <>
+            <div className="space-y-4 flex flex-col lg:flex-row gap-4">
+              
               <div className="space-y-1">
-                <label className="text-sm font-medium text-muted-foreground">
-                  GitHub URL
-                </label>
+                <label className="text-sm font-medium">GitHub URL</label>
                 <Input
                   value={githubUrl}
                   onChange={(e) => setGithubUrl(e.target.value)}
@@ -318,9 +206,7 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
               </div>
 
               <div className="space-y-1">
-                <label className="text-sm font-medium text-muted-foreground">
-                  Live Demo URL
-                </label>
+                <label className="text-sm font-medium ">Live Demo URL</label>
                 <Input
                   value={liveUrl}
                   onChange={(e) => setLiveUrl(e.target.value)}
@@ -329,7 +215,109 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
                 />
               </div>
             </div>
-          </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Which tools, libraries, frameworks, or methodologies did you use
+                for this project?
+              </label>
+
+              <div className="relative">
+                <Input
+                  value={techInput}
+                  onChange={(e) => {
+                    setTechInput(e.target.value);
+                    setShowDropdown(true);
+                  }}
+                  onFocus={() => setShowDropdown(true)}
+                  placeholder="React, Next.js..."
+                  onKeyDown={(e) => {
+                    if (!showDropdown) return;
+
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      setHighlightIndex((prev) =>
+                        prev < filteredTechs.length - 1 ? prev + 1 : 0,
+                      );
+                    }
+
+                    if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      setHighlightIndex((prev) =>
+                        prev > 0 ? prev - 1 : filteredTechs.length - 1,
+                      );
+                    }
+
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+
+                      if (highlightIndex >= 0) {
+                        addTech(filteredTechs[highlightIndex]);
+                      } else if (filteredTechs.length > 0) {
+                        addTech(filteredTechs[0]);
+                      }
+
+                      setShowDropdown(false);
+                    }
+
+                    if (e.key === "Escape") {
+                      setShowDropdown(false);
+                    }
+                  }}
+                />
+
+                {/* DROPDOWN */}
+                {showDropdown && techInput.trim() && (
+                  <div ref={techBoxRef} className="absolute z-10 mt-2 w-full">
+                    <div className="rounded-xl border bg-background shadow-lg max-h-48 overflow-auto">
+                      {filteredTechs.map((tech, index) => (
+                        <button
+                          key={tech}
+                          ref={(el) => {
+                            itemRefs.current[index] = el;
+                          }}
+                          type="button"
+                          onClick={() => addTech(tech)}
+                          className={`w-full text-left px-3 py-2 text-sm ${
+                            index === highlightIndex
+                              ? "bg-muted"
+                              : "hover:bg-muted"
+                          }`}
+                        >
+                          {tech}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* TAGS */}
+              <div className="flex flex-wrap gap-2">
+                {techStack.map((tech) => (
+                  <span
+                    key={tech}
+                    className="flex items-center gap-2 px-3 py-1 text-xs rounded-full bg-muted border"
+                  >
+                    {tech}
+                    <button
+                      onClick={() =>
+                        setTechStack((prev) => prev.filter((t) => t !== tech))
+                      }
+                      className="text-red-500"
+                    >
+                      <X size="12" className="hover:cursor-pointer" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+
+              {techStack.length === 5 && (
+                <p className="text-xs text-red-400">
+                  You can only choose a maximum of 5 options
+                </p>
+              )}
+            </div>
+          </>
         )}
 
         {/* IMAGE */}
