@@ -155,32 +155,32 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
     }
   };
   return (
-    <div>
-      <Card className="mb-6">
-        <CardContent className="pt-6 ">
-          <div className="flex items-center gap-3">
-            <Avatar className="w-10 h-10">
-              <AvatarImage src={user.imageUrl || "/avatar.png"} />
-            </Avatar>
+    <Card>
+      <CardContent className="pt-6 space-y-5">
 
-            <div className="text-sm font-medium">
-              @{user?.fullName || "user"}
-            </div>
-          </div>
-
-          {/* TITLE */}
+        {/* TITLE */}
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-muted-foreground">
+            {mode === "PROJECT" ? "Project Title" : "Post Title"}
+          </label>
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder={
               mode === "PROJECT"
-                ? "Project title (e.g. Social Media App)"
+                ? "e.g. Social Media App"
                 : "What's on your mind?"
             }
-            className="w-full border rounded-md px-3 py-2 text-sm"
+            className="w-full"
             disabled={isPosting}
           />
-          {/* DESCRIPTION */}
+        </div>
+
+        {/* DESCRIPTION */}
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-muted-foreground">
+            Description
+          </label>
           <Textarea
             placeholder={
               mode === "PROJECT"
@@ -190,13 +190,21 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             disabled={isPosting}
+            className="min-h-[100px]"
           />
+        </div>
 
-          {/* GITHUB + LIVE DEMO */}
-          {mode === "PROJECT" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="mt-3 space-y-2 p-3 rounded-lg border bg-muted/30">
-                {/* Input */}
+        {/* PROJECT FIELDS */}
+        {mode === "PROJECT" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* LEFT SIDE */}
+            <div className="space-y-4 p-4 border rounded-xl bg-muted/30">
+              {/* TECH STACK */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Tech Stack
+                </label>
+
                 <div className="relative">
                   <Input
                     value={techInput}
@@ -205,24 +213,10 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
                       setShowDropdown(true);
                     }}
                     onFocus={() => setShowDropdown(true)}
-                    placeholder="Add tech (React, Next.js...)"
-                    className="
-    w-full
-    rounded-lg
-    border
-    bg-background
-    px-3 py-2
-    text-sm
-    outline-none
-    transition
-    focus:ring-2
-    focus:ring-primary/30
-    focus:border-primary
-  "
+                    placeholder="React, Next.js..."
                     onKeyDown={(e) => {
                       if (!showDropdown) return;
 
-                      // DOWN
                       if (e.key === "ArrowDown") {
                         e.preventDefault();
                         setHighlightIndex((prev) =>
@@ -230,7 +224,6 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
                         );
                       }
 
-                      // UP
                       if (e.key === "ArrowUp") {
                         e.preventDefault();
                         setHighlightIndex((prev) =>
@@ -238,7 +231,6 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
                         );
                       }
 
-                      // ENTER
                       if (e.key === "Enter") {
                         e.preventDefault();
 
@@ -251,26 +243,16 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
                         setShowDropdown(false);
                       }
 
-                      // ESC
                       if (e.key === "Escape") {
                         setShowDropdown(false);
                       }
                     }}
                   />
 
-                  {/* AUTOCOMPLETE DROPDOWN */}
+                  {/* DROPDOWN */}
                   {showDropdown && techInput.trim() && (
-                    <div ref={techBoxRef} className="relative">
-                      <div
-                        className="
-      absolute z-10 mt-2 w-full
-      rounded-xl border
-      bg-background/95 backdrop-blur-md
-      shadow-xl
-      max-h-48 overflow-auto
-      animate-in fade-in-0 zoom-in-95
-    "
-                      >
+                    <div ref={techBoxRef} className="absolute z-10 mt-2 w-full">
+                      <div className="rounded-xl border bg-background shadow-lg max-h-48 overflow-auto">
                         {filteredTechs.map((tech, index) => (
                           <button
                             key={tech}
@@ -279,7 +261,7 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
                             }}
                             type="button"
                             onClick={() => addTech(tech)}
-                            className={`w-full text-left px-3 py-2 text-sm transition ${
+                            className={`w-full text-left px-3 py-2 text-sm ${
                               index === highlightIndex
                                 ? "bg-muted"
                                 : "hover:bg-muted"
@@ -293,19 +275,19 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
                   )}
                 </div>
 
-                {/* SELECTED TAGS */}
+                {/* TAGS */}
                 <div className="flex flex-wrap gap-2">
                   {techStack.map((tech) => (
                     <span
                       key={tech}
-                      className="flex items-center gap-2 px-3 py-1 text-xs rounded-full bg-muted/60 border hover:bg-muted transition"
+                      className="flex items-center gap-2 px-3 py-1 text-xs rounded-full bg-muted border"
                     >
                       {tech}
                       <button
                         onClick={() =>
                           setTechStack((prev) => prev.filter((t) => t !== tech))
                         }
-                        className="text-red-500 hover:text-red-700"
+                        className="text-red-500"
                       >
                         ×
                       </button>
@@ -313,90 +295,98 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
                   ))}
                 </div>
 
-                {/* COUNTER */}
                 {techStack.length === 10 && (
                   <p className="text-xs text-red-400">
                     {techStack.length}/10 technologies selected
                   </p>
                 )}
               </div>
-              <div className="mt-3 space-y-3">
+            </div>
+
+            {/* RIGHT SIDE */}
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-muted-foreground">
+                  GitHub URL
+                </label>
                 <Input
                   value={githubUrl}
                   onChange={(e) => setGithubUrl(e.target.value)}
-                  placeholder="GitHub Repo URL"
-                  className="w-full border rounded-md px-3 py-2 text-sm"
+                  placeholder="https://github.com/..."
                   disabled={isPosting}
                 />
+              </div>
 
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Live Demo URL
+                </label>
                 <Input
                   value={liveUrl}
                   onChange={(e) => setLiveUrl(e.target.value)}
-                  placeholder="Live Demo URL"
-                  className="w-full border rounded-md px-3 py-2 text-sm"
+                  placeholder="https://your-site.com"
                   disabled={isPosting}
                 />
               </div>
             </div>
-          )}
-
-          {/* image upload */}
-          {showImageUpload && (
-            <div className="border rounded-lg p-4 mt-4">
-              <ImageUpload
-                key={image || "empty"}
-                endpoint="postImage"
-                value={image}
-                onChange={(url) => {
-                  setImage(url);
-                  if (!url) setShowImageUpload(false);
-                }}
-                setIsUploading={setIsUploading}
-              />
-            </div>
-          )}
-          <div className="flex items-center justify-between border-t pt-4">
-            <div className="flex space-x-2">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-primary"
-                onClick={() => setShowImageUpload(!showImageUpload)}
-                disabled={isPosting}
-              >
-                <ImageIcon className="size-4 mr-2" />
-                Photo
-              </Button>
-            </div>
-            <Button
-              className="flex items-center"
-              onClick={handleSubmit}
-              disabled={
-                (!content && !image && !title) || isPosting || isUploading
-              }
-            >
-              {isPosting ? (
-                <>
-                  <Loader2Icon className="size-4 mr-2 animate-spin" />
-                  Posting...
-                </>
-              ) : isUploading ? (
-                <>
-                  <Loader2Icon className="size-4 mr-2 animate-spin" />
-                  Uploading...
-                </>
-              ) : (
-                <>
-                  <SendIcon className="size-4 mr-2" />
-                  Post
-                </>
-              )}
-            </Button>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        )}
+
+        {/* IMAGE */}
+        {showImageUpload && (
+          <div className="border rounded-xl p-4">
+            <ImageUpload
+              key={image || "empty"}
+              endpoint="postImage"
+              value={image}
+              onChange={(url) => {
+                setImage(url);
+                if (!url) setShowImageUpload(false);
+              }}
+              setIsUploading={setIsUploading}
+            />
+          </div>
+        )}
+
+        {/* ACTIONS */}
+        <div className="flex items-center justify-between border-t pt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowImageUpload(!showImageUpload)}
+            disabled={isPosting}
+          >
+            <ImageIcon className="size-4 mr-2" />
+            Photo
+          </Button>
+
+          <Button
+            onClick={handleSubmit}
+            disabled={
+              (!content && !image && !title) || isPosting || isUploading
+            }
+          >
+            {isPosting ? (
+              <>
+                <Loader2Icon className="size-4 mr-2 animate-spin" />
+                Posting...
+              </>
+            ) : isUploading ? (
+              <>
+                <Loader2Icon className="size-4 mr-2 animate-spin" />
+                Uploading...
+              </>
+            ) : (
+              <>
+                <SendIcon className="size-4 mr-2" />
+                Post
+              </>
+            )}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

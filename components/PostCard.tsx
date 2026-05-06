@@ -20,7 +20,7 @@ import {
   Trash2,
   Code2,
   FileText,
-  ExternalLink
+  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -30,7 +30,7 @@ import { Avatar, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Textarea } from "./ui/textarea";
-
+import { Separator } from "./ui/separator";
 
 type Post = Awaited<ReturnType<typeof getPosts>>[number];
 
@@ -172,27 +172,29 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
 
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 truncate">
-                  <Link
-                    href={`/profile/${post.author.username}`}
-                    className="font-semibold truncate"
-                  >
-                    {post.author.name || post.author.username}
-                  </Link>
-                  <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                    <span>•</span>
-                    <span>
-                      {formatDistanceToNow(new Date(post.createdAt))} ago
-                    </span>
-                    <div className="flex items-center gap-2 ml-2">
-                      {post.type && (
-                        <span
-                          className={`text-xs px-2 py-1 rounded-full ${getTypeStyles(post.type)}`}
-                        >
-                          {post.type}
-                        </span>
-                      )}
+                <div className="flex flex-col sm:flex-row  sm:space-x-2 truncat">
+                  <div className="mr-4">
+                    <Link
+                      href={`/profile/${post.author.username}`}
+                      className="font-semibold truncate"
+                    >
+                      {post.author.name || post.author.username}
+                    </Link>
+                    <div>
+                      <span className="flex items-center space-x-2 text-sm text-muted-foreground">
+                        {formatDistanceToNow(new Date(post.createdAt))} ago
+                      </span>
                     </div>
+                  </div>
+
+                  <div className="items-start">
+                    {post.type && (
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${getTypeStyles(post.type)}`}
+                      >
+                        {post.type}
+                      </span>
+                    )}
                   </div>
                 </div>
                 {/* Check if current user is the post author */}
@@ -205,101 +207,110 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
                   </div>
                 )}
               </div>
-
-              <div className="space-y-3">
-                {/* TITLE */}
-                {post.title && (
-                  <h2 className="text-sm font-semibold flex items-center gap-2">
-                    {getTypeIcon(post.type)}
-                    <span>{post.title}</span>
-                  </h2>
-                )}
-
-                {/* DESCRIPTION */}
-                {post.description && (
-                  <p
-                    className={`text-sm text-muted-foreground leading-relaxed ${
-                      expanded ? "" : "line-clamp-3"
-                    }`}
-                  >
-                    {post.description || "No description provided"}
-                  </p>
-                )}
-
-                {/* SHOW MORE */}
-                {post.description && post.description.length > 120 && (
-                  <button
-                    onClick={() => setExpanded((prev) => !prev)}
-                    className="text-xs text-primary hover:underline"
-                  >
-                    {expanded ? "Show less" : "See more"}
-                  </button>
-                )}
-
-                {/* PROJECT EXTRA DATA */}
-                {post.type === "PROJECT" && (
-                  <>
-                    {/* TECH STACK */}
-                    {post.techStack && post.techStack.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {post.techStack.map((tech, i) => (
-                          <span
-                            key={i}
-                            className="text-xs px-2 py-1 bg-muted rounded-full"
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
             </div>
+          </div>
+          <Separator className="my-4" />
+          <div className="space-y-3 mt-4">
+            {/* TITLE */}
+            {post.title && (
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                {getTypeIcon(post.type)}
+                <span>{post.title}</span>
+              </h2>
+            )}
+
+            {/* DESCRIPTION */}
+            {post.description && (
+              <p
+                className={`text-sm text-muted-foreground leading-relaxed ${
+                  expanded ? "" : "line-clamp-3"
+                }`}
+              >
+                {post.description || "No description provided"}
+              </p>
+            )}
+
+            {/* SHOW MORE */}
+            {post.description && post.description.length > 120 && (
+              <button
+                onClick={() => setExpanded((prev) => !prev)}
+                className="text-xs text-primary underline hover:cursor-pointer hover:opacity-69"
+              >
+                {expanded ? "Show less" : "See more"}
+              </button>
+            )}
+
+            {/* PROJECT EXTRA DATA */}
+            {post.type === "PROJECT" && (
+              <>
+                {/* TECH STACK */}
+                {post.techStack && post.techStack.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {post.techStack.map((tech, i) => (
+                      <span
+                        key={i}
+                        className="
+  text-xs px-2 py-1 bg-muted rounded-full cursor-pointer
+   text-muted-foreground
+    transition-all duration-200 ease-in-out
+    hover:bg-primary hover:text-primary-foreground
+    hover:scale-105 hover:shadow-sm
+    active:scale-95  "
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
           {/* POST IMAGE */}
           {post.image && (
-            <div className="relative group rounded-xl overflow-hidden border">
-              {/* IMAGE */}
-              <img
-                src={post.image}
-                alt="Post content"
-                className="w-full max-h-[500px] object-cover transition-transform duration-300 group-hover:scale-105"
-              />
+            <>
+              <Separator className="my-4" />
+              <div className="relative group rounded-xl overflow-hidden border">
+                {/* IMAGE */}
+                <img
+                  src={post.image}
+                  alt="Post content"
+                  className="w-full max-h-[500px] object-cover transition-transform duration-300 group-hover:scale-105"
+                />
 
-              {/* DARK OVERLAY */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300" />
+                {/* DARK OVERLAY */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300" />
 
-              {/* ACTION BUTTONS OVER IMAGE */}
-              {(post.githubUrl || post.liveUrl) && (
-                <div className="absolute top-3 right-3 flex gap-2  transition">
-                  {post.githubUrl && (
-                    <a
-                      href={post.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 px-3 py-1 text-xs rounded-full bg-white/90 text-black hover:bg-white"
-                    >
-                      <Code2 className="size-4" />
-                      GitHub
-                    </a>
-                  )}
+                {/* ACTION BUTTONS OVER IMAGE */}
+                {(post.githubUrl || post.liveUrl) && (
+                  <div className="absolute top-3 right-3 flex gap-2  transition">
+                    {post.githubUrl && (
+                      <a
+                        href={post.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 px-3 py-1 text-xs rounded-full bg-white/90 text-black hover:bg-white"
+                      >
+                        <Code2 className="size-4" />
+                        GitHub
+                      </a>
+                    )}
 
-                  {post.liveUrl && (
-                    <a
-                      href={post.liveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 px-3 py-1 text-xs rounded-full bg-white/90 text-black hover:bg-white"
-                    >
-                      <ExternalLink className="size-4" />
-                      Live
-                    </a>
-                  )}
-                </div>
-              )}
-            </div>
+                    {post.liveUrl && (
+                      <a
+                        href={post.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 px-3 py-1 text-xs rounded-full bg-white/90 text-black hover:bg-white"
+                      >
+                        <ExternalLink className="size-4" />
+                        Live
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+            </>
           )}
 
           {/* LIKE & COMMENT BUTTONS */}
