@@ -3,7 +3,7 @@
 import { createPost } from "@/app/actions/post.action";
 import { TECH_SUGGESTIONS } from "@/data/TechSuggestions";
 import { useUser } from "@clerk/nextjs";
-import { FileWarning, ImageIcon, Loader2Icon, SendIcon, X } from "lucide-react";
+import { FileText, FileWarning, ImageIcon, Loader2Icon, Rocket, SendIcon, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import ImageUpload from "./ImageUpload";
@@ -38,7 +38,8 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
   const [highlightIndex, setHighlightIndex] = useState(-1);
   const [filteredTechs, setFilteredTechs] = useState<string[]>([]);
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
-
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  
   if (!isLoaded) return null;
   if (!user) return null;
   // Set post type
@@ -94,6 +95,7 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
       });
     }
   }, [highlightIndex]);
+  // Add Tech
   const addTech = (tech: string) => {
     const value = tech.trim();
 
@@ -111,55 +113,106 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
     }
 
     setTechStack((prev) => [...prev, value]);
+      setTechInput(""); 
+    setShowDropdown(false); 
+    setHighlightIndex(-1);
   };
   const removeTech = (tech: string) => {
     setTechStack((prev) => prev.filter((t) => t !== tech));
   };
 
   //server action
-  const handleSubmit = async () => {
-    if (!content.trim() && !image && !title.trim()) return;
-    // console.log("My post image is here:", image);
+const handleSubmit = async () => {
+  const newErrors: { [key: string]: string } = {};
 
-    setIsPosting(true);
-    try {
-      const result = await createPost({
-        title: title || (postType === "PROJECT" ? "Untitled Project" : ""),
-        description: content,
-        githubUrl: githubUrl || undefined,
-        liveUrl: liveUrl || undefined,
-        image: image || undefined,
-        type: postType,
-        techStack: postType === "PROJECT" ? techStack : [],
-      });
-
-      if (result.success) {
-        setTitle("");
-        setContent("");
-        setGithubUrl("");
-        setLiveUrl("");
-        setImage("");
-        setShowImageUpload(false);
-        setTechStack([]);
-        setTechInput("");
-
-        setPostType(initialType || "POST");
-        setMode(initialType || "POST");
-        toast.success("Post created successfully");
-      }
-    } catch (error) {
-      toast.error("Faild to create post");
-    } finally {
-      setIsPosting(false);
+  if (mode === "POST") {
+    if (!content.trim()) {
+      newErrors.content = "Description is required";
     }
-  };
+  }
+
+  if (mode === "PROJECT") {
+    if (!title.trim()) {
+      newErrors.title = "Title is required";
+    }
+
+    if (!content.trim()) {
+      newErrors.content = "Description is required";
+    }
+
+    if (techStack.length === 0) {
+      newErrors.techStack = "Select at least one technology";
+    }
+  }
+
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    toast.error("Please fill required fields");
+    return;
+  }
+
+  setErrors({});
+  setIsPosting(true);
+
+  try {
+    const result = await createPost({
+      title: title || (postType === "PROJECT" ? "Untitled Project" : ""),
+      description: content,
+      githubUrl: githubUrl || undefined,
+      liveUrl: liveUrl || undefined,
+      image: image || undefined,
+      type: postType,
+      techStack: postType === "PROJECT" ? techStack : [],
+    });
+
+    if (result.success) {
+      setTitle("");
+      setContent("");
+      setGithubUrl("");
+      setLiveUrl("");
+      setImage("");
+      setShowImageUpload(false);
+      setTechStack([]);
+      setTechInput("");
+      setErrors({});
+      toast.success("Post created successfully");
+    }
+  } catch {
+    toast.error("Failed to create post");
+  } finally {
+    setIsPosting(false);
+  }
+};
   return (
     <Card>
-      <CardContent className="pt-6 space-y-5">
-        {/* TITLE */}
+      <CardContent className="pt-2 space-y-5">
+        <div className="flex items-center gap-2">
+          {mode === "PROJECT" ? (
+            <>
+              <Rocket className="size-5 text-purple-500" />
+              <h2 className="text-lg lg:text-xl font-semibold tracking-tight">
+                Share Your Project
+              </h2>
+            </>
+          ) : (
+            <>
+              <FileText className="size-5 text-blue-500" />
+              <h2 className="text-lg lg:text-xl font-semibold tracking-tight">
+                Create Post
+              </h2>
+            </>
+          )}
+        </div>
+
         <div className="space-y-1">
-          <label className="text-sm font-medium ">
-            {mode === "PROJECT" ? "Project Title" : "Post Title"}
+          <label className="text-sm font-medium">
+            {mode === "PROJECT" ? (
+              <>
+                Project Title <span className="text-red-500">*</span>
+              </>
+            ) : (
+              "Post Title"
+            )}
           </label>
           <Input
             value={title}
@@ -172,11 +225,16 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
             className="w-full"
             disabled={isPosting}
           />
+          {errors.title && (
+            <p className="text-xs text-red-500 mt-1">{errors.title}</p>
+          )}
         </div>
 
         {/* DESCRIPTION */}
         <div className="space-y-1">
-          <label className="text-sm font-medium">Description</label>
+          <label className="text-sm font-medium">
+            Description <span className="text-red-500">*</span>
+          </label>
           <Textarea
             placeholder={
               mode === "PROJECT"
@@ -188,13 +246,15 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
             disabled={isPosting}
             className="min-h-[100px]"
           />
+          {errors.content && (
+            <p className="text-xs text-red-500 mt-1">{errors.content}</p>
+          )}
         </div>
 
         {/* PROJECT FIELDS */}
         {mode === "PROJECT" && (
           <>
             <div className="space-y-4 flex flex-col lg:flex-row gap-4">
-              
               <div className="space-y-1">
                 <label className="text-sm font-medium">GitHub URL</label>
                 <Input
@@ -217,8 +277,7 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                Which tools, libraries, frameworks, or methodologies did you use
-                for this project?
+                Tools & Technologies <span className="text-red-500">*</span>
               </label>
 
               <div className="relative">
@@ -264,7 +323,11 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
                     }
                   }}
                 />
-
+                {errors.techStack && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.techStack}
+                  </p>
+                )}
                 {/* DROPDOWN */}
                 {showDropdown && techInput.trim() && (
                   <div ref={techBoxRef} className="absolute z-10 mt-2 w-full">
@@ -349,12 +412,7 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
             Photo
           </Button>
 
-          <Button
-            onClick={handleSubmit}
-            disabled={
-              (!content && !image && !title) || isPosting || isUploading
-            }
-          >
+          <Button onClick={handleSubmit} disabled={isPosting || isUploading}>
             {isPosting ? (
               <>
                 <Loader2Icon className="size-4 mr-2 animate-spin" />
@@ -368,7 +426,7 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
             ) : (
               <>
                 <SendIcon className="size-4 mr-2" />
-                Post
+                {mode === "PROJECT" ? "Publish Project" : "Post"}
               </>
             )}
           </Button>
