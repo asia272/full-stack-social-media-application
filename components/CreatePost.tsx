@@ -3,7 +3,7 @@
 import { createPost } from "@/app/actions/post.action";
 import { TECH_SUGGESTIONS } from "@/data/TechSuggestions";
 import { useUser } from "@clerk/nextjs";
-import { FileText, FileWarning, ImageIcon, Loader2Icon, Rocket, SendIcon, X } from "lucide-react";
+import { FileText,ImageIcon, Loader2Icon, Rocket, SendIcon, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import ImageUpload from "./ImageUpload";
@@ -12,11 +12,13 @@ import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
+import { useRouter } from "next/navigation";
 
 type PostType = "POST" | "PROJECT";
 
 const CreatePost = ({ initialType }: { initialType?: PostType }) => {
   const { user, isLoaded } = useUser(); //get user
+  const router = useRouter();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -104,6 +106,8 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
     // max limit
     if (techStack.length >= 5) {
       return;
+    }if (errors.techStack) {
+      setErrors((prev) => ({ ...prev, techStack: "" }));
     }
 
     // prevent duplicates
@@ -117,6 +121,7 @@ const CreatePost = ({ initialType }: { initialType?: PostType }) => {
     setShowDropdown(false); 
     setHighlightIndex(-1);
   };
+  //Remove Tech
   const removeTech = (tech: string) => {
     setTechStack((prev) => prev.filter((t) => t !== tech));
   };
@@ -175,10 +180,17 @@ const handleSubmit = async () => {
       setTechStack([]);
       setTechInput("");
       setErrors({});
-      toast.success("Post created successfully");
+toast.success(
+  mode === "PROJECT"
+    ? "Project published successfully"
+    : "Post published successfully",
+);
+      router.push("/");
     }
   } catch {
-    toast.error("Failed to create post");
+toast.error(
+  mode === "PROJECT" ? "Failed to publish project" : "Failed to create post",
+);
   } finally {
     setIsPosting(false);
   }
@@ -208,7 +220,7 @@ const handleSubmit = async () => {
           <label className="text-sm font-medium">
             {mode === "PROJECT" ? (
               <>
-                Project Title <span className="text-red-500">*</span>
+                Project Title <span className="text-rose-500">*</span>
               </>
             ) : (
               "Post Title"
@@ -216,7 +228,13 @@ const handleSubmit = async () => {
           </label>
           <Input
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => {
+              setTitle(e.target.value);
+
+              if (errors.title) {
+                setErrors((prev) => ({ ...prev, title: "" }));
+              }
+            }}
             placeholder={
               mode === "PROJECT"
                 ? "e.g. Social Media App"
@@ -226,14 +244,14 @@ const handleSubmit = async () => {
             disabled={isPosting}
           />
           {errors.title && (
-            <p className="text-xs text-red-500 mt-1">{errors.title}</p>
+            <p className="text-xs text-rose-500 mt-1">{errors.title}</p>
           )}
         </div>
 
         {/* DESCRIPTION */}
         <div className="space-y-1">
           <label className="text-sm font-medium">
-            Description <span className="text-red-500">*</span>
+            Description <span className="text-rose-500">*</span>
           </label>
           <Textarea
             placeholder={
@@ -242,12 +260,18 @@ const handleSubmit = async () => {
                 : "Share your thoughts..."
             }
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={(e) => {
+              setContent(e.target.value);
+
+              if (errors.content) {
+                setErrors((prev) => ({ ...prev, content: "" }));
+              }
+            }}
             disabled={isPosting}
             className="min-h-[100px]"
           />
           {errors.content && (
-            <p className="text-xs text-red-500 mt-1">{errors.content}</p>
+            <p className="text-xs text-rose-500 mt-1">{errors.content}</p>
           )}
         </div>
 
@@ -277,7 +301,7 @@ const handleSubmit = async () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                Tools & Technologies <span className="text-red-500">*</span>
+                Tools & Technologies <span className="text-rose-500">*</span>
               </label>
 
               <div className="relative">
@@ -324,7 +348,7 @@ const handleSubmit = async () => {
                   }}
                 />
                 {errors.techStack && (
-                  <p className="text-xs text-red-500 mt-1">
+                  <p className="text-xs text-rose-500 mt-1">
                     {errors.techStack}
                   </p>
                 )}
@@ -366,7 +390,7 @@ const handleSubmit = async () => {
                       onClick={() =>
                         setTechStack((prev) => prev.filter((t) => t !== tech))
                       }
-                      className="text-red-500"
+                      className="text-accent-foreground "
                     >
                       <X size="12" className="hover:cursor-pointer" />
                     </button>
@@ -375,7 +399,7 @@ const handleSubmit = async () => {
               </div>
 
               {techStack.length === 5 && (
-                <p className="text-xs text-red-400">
+                <p className="text-xs text-rose-500">
                   You can only choose a maximum of 5 options
                 </p>
               )}
@@ -404,6 +428,7 @@ const handleSubmit = async () => {
           <Button
             type="button"
             variant="ghost"
+            className="hover:cursor-pointer"
             size="sm"
             onClick={() => setShowImageUpload(!showImageUpload)}
             disabled={isPosting}
@@ -412,7 +437,7 @@ const handleSubmit = async () => {
             Photo
           </Button>
 
-          <Button onClick={handleSubmit} disabled={isPosting || isUploading}>
+          <Button onClick={handleSubmit} disabled={isPosting || isUploading} className="hover:cursor-pointer">
             {isPosting ? (
               <>
                 <Loader2Icon className="size-4 mr-2 animate-spin" />
