@@ -8,7 +8,7 @@ DevConnect is designed to go beyond traditional social media — focusing on **c
 
 ## 🌐 Live Demo
 
-[🚀 View Live Application](https://full-stack-social-media-application.vercel.app/)
+[🚀 View Live Application](https://devconnect-steel.vercel.app/)
 
 ---
 
