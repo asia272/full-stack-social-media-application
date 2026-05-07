@@ -1,6 +1,10 @@
-# 🚀 Social Media App
+# 🚀 DevConnect – Developer Community Platform
 
-A modern full-stack **Social Media Web Application** built with **Next.js**, featuring authentication, posts, comments, likes, follows, notifications, and real-time interactions.
+A modern full-stack **Developer Social Platform** built with **Next.js**, where developers can **share projects, posts, connect with others, and grow together**.
+
+DevConnect is designed to go beyond traditional social media — focusing on **coding, projects, collaboration, and feedback from the developer community**.
+
+---
 
 ## 🌐 Live Demo
 
@@ -10,16 +14,19 @@ A modern full-stack **Social Media Web Application** built with **Next.js**, fea
 
 ## 📌 Features
 
-- 🔐 User Authentication (Clerk)
-- 👤 User Profiles
-- 📝 Create & Delete Posts
-- 💬 Comments System
+- 🔐 Secure Authentication (Clerk)
+- 👤 Developer Profiles
+- 📝 Create & Share Posts (coding thoughts, updates, ideas)
+- 📂 Project Sharing (developer-focused content)
+- 💬 Comments System with real-time interaction
 - ❤️ Like / Unlike Posts
-- 👥 Follow / Unfollow Users
+- 👥 Follow / Unfollow Developers
 - 🔔 Notifications System
 - 🖼️ Image Upload Support
-- 📱 Fully Responsive UI
-- ⚡ Fast and modern performance
+- 🧠 Auto Tech Stack Detection (React, Next.js, etc.)
+- 🎨 Light / Dark Mode Support with dynamic logo switching
+- ⚡ Optimized UX with modern UI interactions
+- 📱 Fully Responsive Design
 
 ---
 
@@ -40,6 +47,28 @@ A modern full-stack **Social Media Web Application** built with **Next.js**, fea
 ### Authentication
 - Clerk
 
-### Other Tools
-- React Hot Toast
+### UI/UX Enhancements
+- React Hot Toast (notifications)
+- Theme-based UI (Light/Dark mode)
+- Custom branding system (DevConnect logo variants)
 
+---
+
+## 🎯 Vision
+
+DevConnect is built for developers who want to:
+- Share real-world projects
+- Connect with other developers
+- Get feedback on their work
+- Build a strong coding network
+- Learn and grow in a dev-focused environment
+
+---
+
+## 🚀 Future Improvements
+
+- 🧑‍💻 AI-powered code feedback
+- 📊 Developer skill analytics
+- 💬 Real-time chat system
+- 🏆 Developer leaderboard system
+- 🌍 Global developer discovery feed
