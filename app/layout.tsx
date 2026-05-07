@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -62,7 +63,6 @@ export default  function RootLayout({
 
                 <main className="mx-auto max-w-7xl px-4">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
                     <div className="hidden lg:block lg:col-span-3">
                       <Sidebar />
                     </div>
@@ -75,6 +75,7 @@ export default  function RootLayout({
 
             <Toaster />
           </ThemeProvider>
+          <SpeedInsights />
         </body>
       </html>
     </ClerkProvider>
