@@ -22,22 +22,25 @@ const Navbar = async () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* LEFT SIDE */}
-          <Link href="/" className="group flex items-center gap-3 shrink-0">
+          <Link
+            href="/"
+            className="group flex items-center gap-2 sm:gap-3 shrink-0"
+          >
             {/* Logo */}
-            <div className="relative flex items-center justify-center w-10 h-10">
+            <div className="relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10">
               {/* Rotating Dot */}
               <div className="absolute inset-0 animate-spin-slow">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-primary border border-background" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-primary border border-background" />
               </div>
 
               {/* Ring */}
-              <div className="w-10 h-10 rounded-full border-[1.5px] border-primary/70 flex items-center justify-center transition-all duration-300 group-hover:border-primary">
-                <Code2Icon className="w-5 h-5 text-primary transition-transform duration-300 group-hover:scale-110" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-[1.5px] border-primary/70 flex items-center justify-center transition-all duration-300 group-hover:border-primary">
+                <Code2Icon className="w-4 h-4 sm:w-5 sm:h-5 text-primary transition-transform duration-300 group-hover:scale-110" />
               </div>
             </div>
 
             {/* Brand */}
-            <h2 className="text-xl font-black tracking-tight whitespace-nowrap">
+            <h2 className="text-lg sm:text-xl font-black tracking-tight whitespace-nowrap">
               <span className="text-foreground">Dev</span>
               <span className="text-primary">Connect</span>
             </h2>

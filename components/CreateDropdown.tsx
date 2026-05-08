@@ -29,18 +29,20 @@ const CreateDropdown = () => {
       {/* MAIN BUTTON */}
       <Button
         variant="outline"
-        className="flex items-center gap-2 rounded-full px-4 cursor-pointer"
+        className="flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 h-9 sm:h-10 cursor-pointer text-sm"
         onClick={() => setOpen((prev) => !prev)}
       >
         <Plus className="w-4 h-4" />
-        Create
+        <span>Create</span>
       </Button>
 
       {/* DROPDOWN */}
       <div
-        className={`absolute right-0 mt-2 w-56 rounded-xl border bg-background shadow-lg z-50
-        transition-all duration-200 ease-out
-        ${open ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}`}
+        className={`absolute right-0 mt-2 w-52 sm:w-56 rounded-xl border bg-background shadow-lg z-50
+    transition-all duration-200 ease-out origin-top-right
+    ${
+      open ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
+    }`}
       >
         <div className="p-2">
           <Link
@@ -48,7 +50,7 @@ const CreateDropdown = () => {
             className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition"
             onClick={() => setOpen(false)}
           >
-            <FileText className="w-4 h-4 text-blue-500" />
+            <FileText className="w-4 h-4 text-blue-500 shrink-0" />
             <span className="text-sm font-medium">Create Post</span>
           </Link>
 
@@ -57,7 +59,7 @@ const CreateDropdown = () => {
             className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition"
             onClick={() => setOpen(false)}
           >
-            <Rocket className="w-4 h-4 text-purple-500" />
+            <Rocket className="w-4 h-4 text-purple-500 shrink-0" />
             <span className="text-sm font-medium">Upload Project</span>
           </Link>
         </div>
