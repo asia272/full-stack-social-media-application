@@ -27,7 +27,7 @@ function ProfileDropdown({ user }: { user: any }) {
       </DropdownMenuTrigger>
 
       {/* Dropdown */}
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" className="w-56 max-md:hidden">
         {/* User Info */}
         <div className="flex items-center gap-3 px-3 py-3 ">
           <img

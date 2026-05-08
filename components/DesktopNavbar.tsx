@@ -30,7 +30,6 @@ async function DesktopNavbar() {
                   <BellIcon className="w-4 h-4" />
                   <NotificationBadge />
                 </div>
-                {/* <span className="hidden lg:inline">Notifications</span> */}
               </Link>
             </Button>
             {/* <CreateDropdown /> */}

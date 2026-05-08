@@ -45,19 +45,44 @@ useEffect(() => {
         <span className="sr-only">Toggle theme</span>
       </Button>
 
-
       <Sheet open={showMobileMenu} onOpenChange={setShowMobileMenu}>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="hover:cursor-pointer">
             <MenuIcon className="h-5 w-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="right" className="w-75">
+        <SheetContent side="right" className="w-72 sm:w-80">
           <SheetHeader>
-            <SheetTitle>Menu</SheetTitle>
+            {isSignedIn && user ? (
+              <div className="flex items-center gap-3 pt-2">
+                {/* User Image */}
+                <img
+                  src={user?.image || "/avatar.png"}
+                  alt={user?.name || "User Avatar"}
+                  className="w-12 h-12 rounded-full object-cover border border-border"
+                />
+
+                {/* User Info */}
+                <div className="min-w-0 text-left">
+                  <SheetTitle className="text-base font-semibold truncate">
+                    {user?.name}
+                  </SheetTitle>
+
+                  <p className="text-sm text-muted-foreground truncate">
+                    @{user?.username}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <SheetTitle>Welcome</SheetTitle>
+            )}
           </SheetHeader>
           <nav className="flex flex-col space-y-4 mt-6">
-            <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
+            <Button
+              variant="ghost"
+              className="flex items-center gap-3 justify-start"
+              asChild
+            >
               <Link href="/">
                 <HomeIcon className="w-4 h-4" />
                 Home
@@ -66,7 +91,11 @@ useEffect(() => {
 
             {isSignedIn ? (
               <>
-                <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-3 justify-start"
+                  asChild
+                >
                   <Link href="/notifications">
                     <div className="relative">
                       <BellIcon className="w-4 h-4" />
@@ -75,18 +104,24 @@ useEffect(() => {
                     Notifications
                   </Link>
                 </Button>
-                <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
-       <Link
-                                 href={`/profile/${user?.username ?? user?.email.split("@")[0]}`}
-                             >
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-3 justify-start"
+                  asChild
+                >
+                  <Link
+                    href={`/profile/${user?.username ?? user?.email.split("@")[0]}`}
+                  >
                     <UserIcon className="w-4 h-4" />
                     Profile
                   </Link>
                 </Button>
                 <SignOutButton>
-                  <Button variant="ghost" className="flex items-center gap-3 justify-start w-full">
-                    <LogOutIcon className="w-4 h-4" />
-                    Logout
+                  <Button
+                    variant="ghost"
+                    className="flex items-center gap-3 justify-start w-full">
+                    <LogOutIcon className="w-4 h-4 text-red-500" />
+                    <span className="text-red-500"> Logout</span>
                   </Button>
                 </SignOutButton>
               </>
