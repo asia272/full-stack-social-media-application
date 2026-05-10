@@ -206,3 +206,14 @@ export async function isFollowing(userId: string) {
     return false;
   }
 }
+export async function getUserFollower(userId: string) {
+    try {
+    const currentUserId = await getDbUserId();
+    if (!currentUserId) return false;
+
+const followers = await prisma.follows.findMany()
+    
+    } catch (error) {
+        
+    }
+}
