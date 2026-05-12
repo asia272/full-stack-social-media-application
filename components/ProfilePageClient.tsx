@@ -42,7 +42,13 @@ interface ProfilePageClientProps {
   isFollowing: boolean;
   dbUserId: string | null;
 }
-
+type ModalUser = {
+  id: string;
+  username: string;
+  name: string | null;
+  bio: string | null;
+  image: string | null;
+};
 const ProfilePageClient = ({
   isFollowing: initialIsFollowing,
   likedPosts,
@@ -61,7 +67,7 @@ const ProfilePageClient = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
 
-  const [modalUsers, setModalUsers] = useState([]);
+  const [modalUsers, setModalUsers] = useState<ModalUser[]>([]);
 
   const handleOpenFollowers = async () => {
     const data = await getUserFollowers(user.id);
