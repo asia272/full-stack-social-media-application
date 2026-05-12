@@ -45,9 +45,9 @@ interface ProfilePageClientProps {
 type ModalUser = {
   id: string;
   username: string;
-  name: string | null;
-  bio: string | null;
-  image: string | null;
+  name?: string;
+  bio?: string;
+  image?: string;
 };
 const ProfilePageClient = ({
   isFollowing: initialIsFollowing,
@@ -58,6 +58,18 @@ const ProfilePageClient = ({
 }: ProfilePageClientProps) => {
   const { user: currentUser } = useUser();
 
+
+
+  const [editForm, setEditForm] = useState({
+    name: user.name || "",
+    bio: user.bio || "",
+    location: user.location || "",
+    website: user.website || "",
+  });
+  const isOwnProfile =
+    currentUser?.username === user.username ||
+    currentUser?.emailAddresses[0].emailAddress.split("@")[0] === user.username;
+  const formattedDate = format(new Date(user.createdAt), "MMMM yyyy");
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
   const [isUpdatingFollow, setIsUpdatingFollow] = useState(false);
@@ -69,38 +81,33 @@ const ProfilePageClient = ({
 
   const [modalUsers, setModalUsers] = useState<ModalUser[]>([]);
 
+
   const handleOpenFollowers = async () => {
     const data = await getUserFollowers(user.id);
-    setModalUsers(data);
+    setModalUsers(
+      data.map((u) => ({
+        ...u,
+        name: u.name ?? undefined,
+        bio: u.bio ?? undefined,
+        image: u.image ?? undefined,
+      }))
+    );
     setModalTitle("Followers");
     setModalOpen(true);
   };
-
   const handleOpenFollowing = async () => {
     const data = await getUserFollowing(user.id);
-    setModalUsers(data);
+    setModalUsers(
+      data.map((u) => ({
+        ...u,
+        name: u.name ?? undefined,
+        bio: u.bio ?? undefined,
+        image: u.image ?? undefined,
+      }))
+    );
     setModalTitle("Following");
     setModalOpen(true);
   };
-
-
-
-
-  const [editForm, setEditForm] = useState({
-    name: user.name || "",
-    bio: user.bio || "",
-    location: user.location || "",
-    website: user.website || "",
-  });
-
-  const isOwnProfile =
-    currentUser?.username === user.username ||
-    currentUser?.emailAddresses[0].emailAddress.split("@")[0] === user.username;
-
-  const formattedDate = format(new Date(user.createdAt), "MMMM yyyy");
-
-
-
   const handleEditSubmit = async () => {
     const formData = new FormData();
     Object.entries(editForm).forEach(([key, value]) => {
