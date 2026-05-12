@@ -19,6 +19,7 @@ import { Separator } from './ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Textarea } from './ui/textarea';
 import FollowListModal from './FollowListModal';
+import FollowStats from './FollowStats';
 
 
 
@@ -154,31 +155,12 @@ const ProfilePageClient = ({
                 <div className="w-full mt-6">
 
                   <div className="flex justify-between mb-4">
-                    <div
-                      className="cursor-pointer px-3 py-2 rounded-md transition-colors hover:bg-muted"
-                      onClick={handleOpenFollowing}
-                    >
-                      <div className="font-semibold transition-colors group-hover:text-foreground">
-                        {user._count.following.toLocaleString()}
-                      </div>
-                      <div className="text-sm text-muted-foreground transition-colors group-hover:text-foreground">
-                        Following
-                      </div>
-                    </div>
+                    <FollowStats
+                      userId={user.id}
+                      followersCount={user._count.followers}
+                      followingCount={user._count.following}
+                    />
 
-                    <Separator orientation="vertical" />
-
-                    <div
-                      className="cursor-pointer px-3 py-2 rounded-md transition-colors hover:bg-muted"
-                      onClick={handleOpenFollowers}
-                    >
-                      <div className="font-semibold transition-colors">
-                        {user._count.followers.toLocaleString()}
-                      </div>
-                      <div className="text-sm text-muted-foreground transition-colors">
-                        Followers
-                      </div>
-                    </div>
                     <Separator orientation="vertical" />
                     <div>
                       <div className="font-semibold">

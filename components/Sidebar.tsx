@@ -8,6 +8,7 @@ import { Avatar, AvatarImage } from './ui/avatar';
 import { Card, CardContent } from './ui/card';
 import { Separator } from './ui/separator';
 import UnAuthenticatedSidebar from './UnauthenticatedSidebar ';
+import FollowStats from './FollowStats';
 
 const Sidebar = async () => {
     const authUser = await currentUser();
@@ -41,7 +42,12 @@ const Sidebar = async () => {
                         <div className="w-full">
                             <Separator className="my-4" />
                             <div className="flex justify-between">
-                                <div>
+                                <FollowStats
+                                    userId={dbUser.id}
+                                    followersCount={dbUser._count.followers}
+                                    followingCount={dbUser._count.following}
+                                />
+                                {/* <div>
                                     <p className="font-medium">{dbUser._count.following}</p>
                                     <p className="text-xs text-muted-foreground">Following</p>
                                 </div>
@@ -49,7 +55,7 @@ const Sidebar = async () => {
                                 <div>
                                     <p className="font-medium">{dbUser._count.followers}</p>
                                     <p className="text-xs text-muted-foreground">Followers</p>
-                                </div>
+                                </div> */}
                             </div>
                             <Separator className="my-4" />
                         </div>
