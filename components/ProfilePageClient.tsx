@@ -1,6 +1,6 @@
 "use client"
 
-import { getProfileByUsername, getUserAllPosts, updateProfile } from '@/app/actions/profile.action';
+import { getProfileByUsername, getUserAllPosts, getUserFollowers, getUserFollowing, updateProfile } from '@/app/actions/profile.action';
 import { toggleFollow } from '@/app/actions/user.action';
 import { SignInButton, useUser } from '@clerk/nextjs';
 import { format } from "date-fns";
@@ -18,6 +18,7 @@ import { Label } from './ui/label';
 import { Separator } from './ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Textarea } from './ui/textarea';
+import FollowListModal from './FollowListModal';
 
 
 
@@ -42,7 +43,7 @@ interface ProfilePageClientProps {
   dbUserId: string | null;
 }
 
-const ProfilePageClient = async ({
+const ProfilePageClient = ({
   isFollowing: initialIsFollowing,
   likedPosts,
   posts,
@@ -54,6 +55,30 @@ const ProfilePageClient = async ({
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
   const [isUpdatingFollow, setIsUpdatingFollow] = useState(false);
+
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+
+  const [modalUsers, setModalUsers] = useState([]);
+
+  const handleOpenFollowers = async () => {
+    const data = await getUserFollowers(user.id);
+    setModalUsers(data);
+    setModalTitle("Followers");
+    setModalOpen(true);
+  };
+
+  const handleOpenFollowing = async () => {
+    const data = await getUserFollowing(user.id);
+    setModalUsers(data);
+    setModalTitle("Following");
+    setModalOpen(true);
+  };
+
+
+
 
   const [editForm, setEditForm] = useState({
     name: user.name || "",
@@ -68,8 +93,8 @@ const ProfilePageClient = async ({
 
   const formattedDate = format(new Date(user.createdAt), "MMMM yyyy");
 
- 
-  
+
+
   const handleEditSubmit = async () => {
     const formData = new FormData();
     Object.entries(editForm).forEach(([key, value]) => {
@@ -114,21 +139,30 @@ const ProfilePageClient = async ({
 
                 {/* PROFILE STATS */}
                 <div className="w-full mt-6">
+
                   <div className="flex justify-between mb-4">
-                    <div>
-                      <div className="font-semibold">
+                    <div
+                      className="cursor-pointer px-3 py-2 rounded-md transition-colors hover:bg-muted"
+                      onClick={handleOpenFollowing}
+                    >
+                      <div className="font-semibold transition-colors group-hover:text-foreground">
                         {user._count.following.toLocaleString()}
                       </div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-sm text-muted-foreground transition-colors group-hover:text-foreground">
                         Following
                       </div>
                     </div>
+
                     <Separator orientation="vertical" />
-                    <div>
-                      <div className="font-semibold">
+
+                    <div
+                      className="cursor-pointer px-3 py-2 rounded-md transition-colors hover:bg-muted"
+                      onClick={handleOpenFollowers}
+                    >
+                      <div className="font-semibold transition-colors">
                         {user._count.followers.toLocaleString()}
                       </div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-sm text-muted-foreground transition-colors">
                         Followers
                       </div>
                     </div>
@@ -149,10 +183,10 @@ const ProfilePageClient = async ({
                   </SignInButton>
                 ) : isOwnProfile ? (
                   <Button
-                    className="w-full mt-4"
+                    className="w-full mt-4 cursor-pointer"
                     onClick={() => setShowEditDialog(true)}
                   >
-                    <EditIcon className="size-4 mr-2" />
+                    <EditIcon className="size-4 mr-2 cursor-pointer" />
                     Edit Profile
                   </Button>
                 ) : (
@@ -225,7 +259,7 @@ const ProfilePageClient = async ({
             <div className="space-y-6">
               {posts.length > 0 ? (
                 posts.map((post) => (
-                    <PostCard key={post.id} post={post} dbUserId={dbUserId} />
+                  <PostCard key={post.id} post={post} dbUserId={dbUserId} />
                 ))
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
@@ -239,7 +273,7 @@ const ProfilePageClient = async ({
             <div className="space-y-6">
               {likedPosts.length > 0 ? (
                 likedPosts.map((post) => (
-              <PostCard key={post.id} post={post} dbUserId={dbUserId} />
+                  <PostCard key={post.id} post={post} dbUserId={dbUserId} />
                 ))
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
@@ -312,6 +346,12 @@ const ProfilePageClient = async ({
           </DialogContent>
         </Dialog>
       </div>
+      <FollowListModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        users={modalUsers}
+        title={modalTitle}
+      />
     </div>
   );
 };

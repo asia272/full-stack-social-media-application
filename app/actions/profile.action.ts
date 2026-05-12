@@ -80,14 +80,14 @@ export async function getUserAllPosts(userId: string) {
             },
         })
 
-    return posts.map((post) => ({
-      ...post,
-      githubUrl: post.githubUrl ?? undefined,
-      liveUrl: post.liveUrl ?? undefined,
-      description: post.description ?? undefined,
-      title: post.title ?? undefined,
-    }));
-        
+        return posts.map((post) => ({
+            ...post,
+            githubUrl: post.githubUrl ?? undefined,
+            liveUrl: post.liveUrl ?? undefined,
+            description: post.description ?? undefined,
+            title: post.title ?? undefined,
+        }));
+
     } catch (error) {
         console.error("Error fetching user posts:", error);
         throw new Error("Failed to fetch user posts");
@@ -146,13 +146,13 @@ export async function getUserLikedPosts(userId: string) {
             },
         });
 
-  return likedPosts.map((post) => ({
-    ...post,
-    githubUrl: post.githubUrl ?? undefined,
-    liveUrl: post.liveUrl ?? undefined,
-    description: post.description ?? undefined,
-    title: post.title ?? undefined,
-  }));
+        return likedPosts.map((post) => ({
+            ...post,
+            githubUrl: post.githubUrl ?? undefined,
+            liveUrl: post.liveUrl ?? undefined,
+            description: post.description ?? undefined,
+            title: post.title ?? undefined,
+        }));
     } catch (error) {
         console.error("Error fetching liked posts:", error);
         throw new Error("Failed to fetch liked posts");
@@ -187,33 +187,79 @@ export async function updateProfile(formData: FormData) {
     }
 }
 export async function isFollowing(userId: string) {
-  try {
-    const currentUserId = await getDbUserId();
-    if (!currentUserId) return false;
-
-    const follow = await prisma.follows.findUnique({
-      where: {
-        followerId_followingId: {
-          followerId: currentUserId,
-          followingId: userId,
-        },
-      },
-    });
-
-    return !!follow;
-  } catch (error) {
-    console.error("Error checking follow status:", error);
-    return false;
-  }
-}
-export async function getUserFollower(userId: string) {
     try {
-    const currentUserId = await getDbUserId();
-    if (!currentUserId) return false;
+        const currentUserId = await getDbUserId();
+        if (!currentUserId) return false;
 
-const followers = await prisma.follows.findMany()
-    
+        const follow = await prisma.follows.findUnique({
+            where: {
+                followerId_followingId: {
+                    followerId: currentUserId,
+                    followingId: userId,
+                },
+            },
+        });
+
+        return !!follow;
     } catch (error) {
-        
+        console.error("Error checking follow status:", error);
+        return false;
+    }
+}
+export async function getUserFollowers(userId: string) {
+    try {
+        const followers = await prisma.follows.findMany({
+            where: {
+                followingId: userId,
+            },
+            select: {
+                follower: {
+                    select: {
+                        id: true,
+                        username: true,
+                        name: true,
+                        bio: true,
+                        image: true,
+                    },
+                },
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+        });
+
+
+        return followers.map((item) => item.follower);
+    } catch (error) {
+        console.error("Error fetching followers:", error);
+        throw new Error("Failed to fetch followers");
+    }
+}
+
+export async function getUserFollowing(userId: string) {
+    try {
+        const following = await prisma.follows.findMany({
+            where: {
+                followerId: userId,
+            },
+            select: {
+                following: {
+                    select: {
+                        id: true,
+                        username: true,
+                        name: true,
+                        bio: true,
+                        image: true,
+                    },
+                },
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+        });
+        return following.map((item) => item.following);
+    } catch (error) {
+        console.error("Error fetching following:", error);
+        throw new Error("Failed to fetch following");
     }
 }
