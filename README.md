@@ -21,6 +21,8 @@ DevConnect is designed to go beyond traditional social media — focusing on **c
 - 💬 Comments System with real-time interaction
 - ❤️ Like / Unlike Posts
 - 👥 Follow / Unfollow Developers
+- 👀 Follow Status Indicator (shows if you are following a user in profile & sidebar)
+- 📊 Followers & Following Modal System (click to view full lists)-
 - 🔔 Notifications System
 - 🖼️ Image Upload Support
 - 🧠 Auto Tech Stack Detection (React, Next.js, etc.)
