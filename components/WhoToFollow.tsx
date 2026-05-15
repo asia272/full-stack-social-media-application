@@ -24,8 +24,11 @@ async function WhotoFolow() {
                                     </Avatar>
                                 </Link>
                                 <div className="text-xs">
-                                    <Link href={`/profile/${user.username}`} className="font-medium cursor-pointer">
-                                        {user.name}
+                                    <Link
+                                        href={`/profile/${user.username}`}
+                                        className="font-medium cursor-pointer"
+                                    >
+                                        {user.name?.trim() || user.username}
                                     </Link>
                                     <p className="text-muted-foreground">@{user.username}</p>
                                     <p className="text-muted-foreground">{user._count.followers} followers</p>
