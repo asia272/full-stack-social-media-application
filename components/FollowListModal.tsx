@@ -62,7 +62,7 @@ const FollowListModal: FC<FollowListModalProps> = ({
                                         href={`/profile/${user.username}`}
                                         className="font-semibold hover:underline"
                                     >
-                                        {user.name || user.username}
+                                        {user.name?.trim() || user.username}
                                     </Link>
                                     <p className="text-sm text-gray-500">
                                         {user.bio}
